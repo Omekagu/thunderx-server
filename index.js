@@ -8,14 +8,20 @@ const app = express()
 
 // middlewares
 dotenv.config()
-app.use(
-  cors({
-    origin: '*'
-  })
-)
+app.use(express.json())
+app.use(cors())
 
 // ROUTES
 app.use('/auth', authRoutes)
+app.get('/', (req, res) => {
+  try {
+    console.log('server is running on port 5000')
+    res.send('Serving is running')
+  } catch (error) {
+    console.log('error', error)
+    res.send('server failed')
+  }
+})
 
 mongodbConnection()
 

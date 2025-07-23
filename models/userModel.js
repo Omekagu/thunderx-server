@@ -2,19 +2,19 @@ import mongoose from 'mongoose'
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: { type: String },
-    lastName: { String },
+    firstname: { type: String },
+    lastname: { String },
     referralcode: { type: String },
     email: { type: String },
-    phone: { type: String },
+    phoneNumber: { type: String },
     password: {
       type: String,
       required: function () {
         return !this.provider
       }
     },
-    dialCode: { type: String },
-    country: { type: String },
+    hashedPassword: { type: String },
+    userCountry: { type: String },
     createdAt: {
       type: Date,
       default: Date.now
