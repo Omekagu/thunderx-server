@@ -1,2 +1,4 @@
+import crypto from 'crypto'
+
 // jso web token
-export const jwtSecret = Crypto.randomBytes(64).toString('hex')
+export const jwtSecret = crypto.randomBytes(64).toString('hex')
