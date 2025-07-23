@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import mongodbConnection from './configs/mongbDb.js'
 import authRoutes from './routes/auth/auth.js'
+import userRoutes from './routes/user/users.js'
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(cors())
 
 // ROUTES
+app.use('/user', userRoutes)
 app.use('/auth', authRoutes)
 app.get('/', (req, res) => {
   try {
