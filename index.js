@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import mongodbConnection from './configs/mongbDb.js'
 import authRoutes from './routes/auth/auth.js'
 import userRoutes from './routes/user/users.js'
+import transactionRoutes from './routes/user/userTransaction.js'
 
 const app = express()
 
@@ -13,8 +14,9 @@ app.use(express.json())
 app.use(cors())
 
 // ROUTES
-app.use('/user', userRoutes)
 app.use('/auth', authRoutes)
+app.use('/user', userRoutes)
+app.use('/transaction', transactionRoutes)
 app.get('/', (req, res) => {
   try {
     console.log('server is running on port 5000')

@@ -4,7 +4,7 @@ import getUserWithWallets from '../../controllers/user/getUserWithWallets.js'
 
 const router = express.Router()
 
-router.get('/users', Users)
+router.get('/', Users)
 router.get('/:userId', getUserWithWallets)
 
 export default router
