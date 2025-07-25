@@ -22,7 +22,7 @@ const register = async (req, res) => {
 
     const newUser = new User({
       firstname,
-      surname,
+      lastname: surname,
       email,
       hashedPassword,
       phoneNumber,

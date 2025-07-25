@@ -16,7 +16,8 @@ const getUserWithWallets = async (req, res) => {
         surname: user.surname,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        userCountry: user.userCountry
+        userCountry: user.userCountry,
+        userBalance: user.wallet.balance
       },
       wallets
     })
