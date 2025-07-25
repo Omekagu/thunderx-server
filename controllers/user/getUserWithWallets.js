@@ -13,7 +13,7 @@ const getUserWithWallets = async (req, res) => {
     res.status(200).json({
       user: {
         firstname: user.firstname,
-        surname: user.surname,
+        lastname: user.lastname,
         email: user.email,
         phoneNumber: user.phoneNumber,
         userCountry: user.userCountry,
