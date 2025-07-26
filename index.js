@@ -5,7 +5,10 @@ import mongodbConnection from './configs/mongbDb.js'
 import authRoutes from './routes/auth/auth.js'
 import userRoutes from './routes/user/users.js'
 import transactionRoutes from './routes/user/userTransaction.js'
-import paymentRoutes from './routes/payments/stripe.js'
+import paymentRoutes from './routes/payments/payment.js'
+import { EventEmitter } from 'events'
+
+EventEmitter.defaultMaxListeners = 20
 
 const app = express()
 

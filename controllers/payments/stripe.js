@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { logTransaction } from '../../utilities/Transaction'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -22,7 +23,13 @@ export const StripePay = async (req, res) => {
       cancel_url: `https://yourapp.com/cancel`,
       metadata: { userId, coin, amount }
     })
-
+    await logTransaction({
+      userId,
+      amount,
+      coin,
+      method: 'PayPal',
+      status: 'pending'
+    })
     res.json({ url: session.url })
   } catch (err) {
     res.status(500).json({ error: err.message })
