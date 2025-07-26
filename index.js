@@ -5,6 +5,7 @@ import mongodbConnection from './configs/mongbDb.js'
 import authRoutes from './routes/auth/auth.js'
 import userRoutes from './routes/user/users.js'
 import transactionRoutes from './routes/user/userTransaction.js'
+import paymentRoutes from './routes/payments/stripe.js'
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.use(cors())
 app.use('/auth', authRoutes)
 app.use('/user', userRoutes)
 app.use('/transaction', transactionRoutes)
+app.use('/payment', paymentRoutes)
 app.get('/', (req, res) => {
   try {
     console.log('server is running on port 5000')
