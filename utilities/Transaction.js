@@ -1,26 +1,23 @@
 import Transaction from '../models/Transaction.js'
 
-export async function logTransaction ({
+export const logTransaction = async ({
   userId,
-  method,
   amount,
   coin,
+  method,
   status,
-  description,
   receiptPath
-}) {
-  try {
-    await Transaction.create({
-      userId,
-      type: method,
-      amount,
-      coin,
-      status,
-      description,
-      receiptPath,
-      date: new Date()
-    })
-  } catch (err) {
-    console.error('Failed to log transaction:', err.message)
-  }
+}) => {
+  const newTx = new Transaction({
+    userId,
+    amount,
+    coin,
+    type: 'Buy', // <-- required field
+    method,
+    status: 'pending', // <-- must match enum in schema
+    receipt: receiptPath || null,
+    createdAt: new Date()
+  })
+
+  return await newTx.save()
 }
