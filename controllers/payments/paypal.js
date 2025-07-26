@@ -1,4 +1,4 @@
-import { logTransaction } from '../../utilities/Transaction'
+import { logTransaction } from '../../utilities/Transaction.js'
 
 export const paypalPay = async (req, res) => {
   const { amount, coin, userId } = req.body

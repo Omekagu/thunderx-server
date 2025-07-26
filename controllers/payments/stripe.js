@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { logTransaction } from '../../utilities/Transaction'
+import { logTransaction } from '../../utilities/Transaction.js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
