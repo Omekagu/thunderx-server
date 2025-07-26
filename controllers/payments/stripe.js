@@ -27,7 +27,7 @@ export const StripePay = async (req, res) => {
       userId,
       amount,
       coin,
-      method: 'PayPal',
+      method: 'Stripe',
       status: 'pending'
     })
     res.json({ url: session.url })

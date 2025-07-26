@@ -1,3 +1,8 @@
+import { logTransaction } from '../../utilities/Transaction.js'
+
+export const cashappTag = (req, res) => {
+  res.json({ tag: 'thunderxcash' })
+}
 export const cashappPay = async (req, res) => {
   try {
     const { amount, coin, userId, receipt } = req.body
