@@ -7,6 +7,8 @@ const transactionSchema = new mongoose.Schema({
   coin: String,
   method: String,
   status: { type: String, default: 'pending' },
+  description: String,
+  receiptPath: String,
   createdAt: { type: Date, default: Date.now }
 })
 

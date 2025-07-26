@@ -6,7 +6,8 @@ export async function logTransaction ({
   amount,
   coin,
   status,
-  description
+  description,
+  receiptPath
 }) {
   try {
     await Transaction.create({
@@ -16,6 +17,7 @@ export async function logTransaction ({
       coin,
       status,
       description,
+      receiptPath,
       date: new Date()
     })
   } catch (err) {

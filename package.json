@@ -21,6 +21,7 @@
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
+    "multer": "^2.0.2",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.7",
     "otp-generator": "^4.0.1",
