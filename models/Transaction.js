@@ -1,35 +1,32 @@
 import mongoose from 'mongoose'
 
-const transactionSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
-    type: {
-      type: String,
-      enum: ['Deposit', 'Withdraw', 'Interest', 'Loan', 'Transfer'],
-      required: true
-    },
-    amount: {
-      type: Number,
-      required: true
-    },
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    status: {
-      type: String,
-      enum: ['Pending', 'Completed', 'Failed'],
-      default: 'Pending'
-    },
-    description: {
-      type: String
-    }
+const TransactionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  amount: { type: Number, required: true },
+  coin: { type: String, required: true },
+  type: {
+    type: String,
+    enum: [
+      'Deposit',
+      'Withdraw',
+      'Buy',
+      'Sell',
+      'Interest',
+      'Loan',
+      'Transfer'
+    ],
+    required: true
   },
-  { timestamps: true }
-)
+  status: {
+    type: String,
+    enum: ['pending', 'awaiting payment', 'confirmed', 'rejected', 'failed'],
+    default: 'pending'
+  },
+  method: { type: String, required: true },
+  receipt: { type: String },
+  createdAt: { type: Date, default: Date.now }
+})
 
-export default mongoose.model('Transaction', transactionSchema)
+// ✅ ESM-safe cache check
+export default mongoose.models.Transaction ||
+  mongoose.model('Transaction', TransactionSchema)

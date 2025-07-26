@@ -1,4 +1,12 @@
 import Transaction from '../models/Transaction.js'
+console.log(
+  'Transaction Type Enum:',
+  Transaction.schema.path('type').enumValues
+)
+console.log(
+  'Transaction Status Enum:',
+  Transaction.schema.path('status').enumValues
+)
 
 export const logTransaction = async ({
   userId,
