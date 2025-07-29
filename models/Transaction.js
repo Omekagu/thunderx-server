@@ -20,7 +20,7 @@ const TransactionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'awaiting payment', 'confirmed', 'rejected', 'failed'],
+    enum: ['pending', 'awaiting payment', 'success', 'rejected', 'failed'],
     default: 'pending'
   },
   method: { type: String, required: true }, // e.g. "Stripe", "Cash App", "Wallet"
