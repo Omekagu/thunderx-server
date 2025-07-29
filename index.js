@@ -20,7 +20,7 @@ app.use(cors())
 // ROUTES
 app.use('/auth', authRoutes)
 app.use('/user', userRoutes)
-app.use('/transaction', transactionRoutes)
+app.use('/transactions', transactionRoutes)
 app.use('/payment', paymentRoutes)
 app.get('/', (req, res) => {
   try {
