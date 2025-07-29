@@ -1,4 +1,3 @@
-import express from 'express'
 import sendEmail from '../../utilities/sendEmail.js'
 import generateOTP from '../../utilities/genOtp.js'
 import User from '../../models/userModel.js'
