@@ -17,7 +17,7 @@ const UserInvestmentSchema = new mongoose.Schema({
   expectedReturn: { type: Number, required: true },
   status: {
     type: String,
-    enum: ['pending', 'active', 'completed', 'cancelled'],
+    enum: ['pending', 'active', 'completed', 'failed'],
     default: 'pending'
   },
   lastUpdated: { type: Date, default: Date.now },

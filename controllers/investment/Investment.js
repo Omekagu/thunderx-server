@@ -1,8 +1,7 @@
 import InvestmentplanModel from '../../models/InvestmentplanModel.js'
+import Transaction from '../../models/Transaction.js'
 import UserInvestment from '../../models/userInvestmentModel.js'
-
-// /controllers/investmentController.js
-import User from '../../models/UserModel.js'
+import UserWallet from '../../models/UserWallet.js'
 
 export const getAllInvestmentPlans = async (req, res) => {
   try {
@@ -13,12 +12,12 @@ export const getAllInvestmentPlans = async (req, res) => {
   }
 }
 
-export const userInvestment = async (req, res) => {
+export const postUserInvestment = async (req, res) => {
   const { userId, planId, amount, walletSymbol, walletAddress } = req.body
 
   try {
     // Fetch investment plan
-    const plan = await InvestmentPlan.findById(planId)
+    const plan = await InvestmentplanModel.findById(planId)
     if (!plan) {
       return res.status(404).json({ success: false, msg: 'Plan not found' })
     }
@@ -31,7 +30,7 @@ export const userInvestment = async (req, res) => {
     }
 
     // Check user's wallet
-    const wallet = await User.findOne({
+    const wallet = await UserWallet.findOne({
       userId,
       symbol: walletSymbol,
       walletAddress
@@ -70,6 +69,16 @@ export const userInvestment = async (req, res) => {
       lastUpdated: new Date()
     })
 
+    await Transaction.create({
+      userId,
+      amount,
+      coin: walletSymbol,
+      type: 'Investment',
+      status: 'success',
+      method: 'Wallet',
+      receipt: '' // optional, or store investment ID
+    })
+
     return res.status(201).json({
       success: true,
       msg: 'Investment started successfully',
@@ -78,5 +87,22 @@ export const userInvestment = async (req, res) => {
   } catch (err) {
     console.error('Start Investment Error:', err)
     return res.status(500).json({ success: false, msg: 'Server error' })
+  }
+}
+
+export const getUserInvestments = async (req, res) => {
+  try {
+    const userId = req.params.userId
+
+    const investments = await UserInvestment.find({ userId })
+      .populate({
+        path: 'planId',
+        select: 'title category profitRate durationDays minDeposit maxDeposit' // Adjust fields as needed
+      })
+      .sort({ createdAt: -1 }) // optional: newest first
+
+    res.status(200).json({ status: 'ok', data: investments })
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message })
   }
 }

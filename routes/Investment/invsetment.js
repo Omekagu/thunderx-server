@@ -1,12 +1,14 @@
 import express from 'express'
 import {
   getAllInvestmentPlans,
-  userInvestment
+  getUserInvestments,
+  postUserInvestment
 } from '../../controllers/investment/Investment.js'
 
 const router = express.Router()
 
 router.get('/', getAllInvestmentPlans)
-router.post('/user-investments', userInvestment)
+router.post('/user-investments', postUserInvestment)
+router.get('/:userId', getUserInvestments)
 
 export default router
