@@ -15,18 +15,19 @@ const UserSchema = new mongoose.Schema(
     },
     hashedPassword: { type: String },
     userCountry: { type: String },
-
     wallet: {
       balance: { type: Number, default: 0 },
       coinBalance: { type: Number, default: 0 }
     },
-
     loan: {
       active: { type: Boolean, default: false },
       totalBorrowed: { type: Number, default: 0 },
       totalRepaid: { type: Number, default: 0 },
       outstandingBalance: { type: Number, default: 0 }
     },
+    resetOTP: String,
+    otpExpires: Date,
+    otpVerified: { type: Boolean, default: false },
     createdAt: {
       type: Date,
       default: Date.now
@@ -38,6 +39,6 @@ const UserSchema = new mongoose.Schema(
   }
 )
 
-const User = mongoose.model('UserInfo', UserSchema)
+const User = mongoose.models.UserInfo || mongoose.model('UserInfo', UserSchema)
 
 export default User

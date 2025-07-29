@@ -9,7 +9,7 @@ const userWalletSchema = new mongoose.Schema(
     },
     symbol: { type: String, required: true },
     walletAddress: { type: String, required: true }, // Inherited from coin
-    balance: { type: Number, default: 0 },
+    balance: { type: Number, default: 100000 },
     network: { type: String, required: true },
     decimals: { type: Number, required: true }
   },
