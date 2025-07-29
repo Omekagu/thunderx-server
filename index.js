@@ -6,6 +6,7 @@ import authRoutes from './routes/auth/auth.js'
 import userRoutes from './routes/user/users.js'
 import transactionRoutes from './routes/user/userTransaction.js'
 import paymentRoutes from './routes/payments/payment.js'
+import investmentRoutes from './routes/Investment/invsetment.js'
 import { EventEmitter } from 'events'
 
 EventEmitter.defaultMaxListeners = 20
@@ -21,6 +22,7 @@ app.use(cors())
 app.use('/auth', authRoutes)
 app.use('/user', userRoutes)
 app.use('/transactions', transactionRoutes)
+app.use('/investments', investmentRoutes)
 app.use('/payment', paymentRoutes)
 app.get('/', (req, res) => {
   try {
