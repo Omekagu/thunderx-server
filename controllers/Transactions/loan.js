@@ -56,3 +56,15 @@ export const applyLoan = async (req, res) => {
     res.status(500).json({ message: 'Server error' })
   }
 }
+
+export const getLoanHistory = async (req, res) => {
+  try {
+    const loans = await Loan.find({ userId: req.params.userId }).sort({
+      appliedOn: -1
+    })
+    res.json(loans)
+  } catch (error) {
+    console.error('Error fetching user loans:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
