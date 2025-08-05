@@ -9,7 +9,20 @@ export const applyLoan = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' })
     }
 
-    // Validate wallet and get balance
+    // 🔒 Check for existing unpaid loans
+    const existingLoan = await Loan.findOne({
+      userId,
+      status: { $in: ['Pending', 'Approved', 'Rejected'] } // adjust based on your statuses
+    })
+
+    if (existingLoan) {
+      return res.status(400).json({
+        message:
+          'You already have an active or unpaid loan. Please repay it before applying again.'
+      })
+    }
+
+    // ✅ Validate wallet and get balance
     const wallet = await UserWallet.findOne({ _id: walletId, userId })
 
     if (!wallet) {
@@ -23,17 +36,17 @@ export const applyLoan = async (req, res) => {
       })
     }
 
-    // Calculate interest rate (e.g., 10%)
+    // 💰 Calculate interest
     const interestRate = 0.1
     const interest = amount * interestRate
     const totalRepayment = amount + interest
 
-    // Parse term and calculate due date
+    // 📅 Parse term and calculate due date
     const months = parseInt(term.split(' ')[0])
     const dueDate = new Date()
     dueDate.setMonth(dueDate.getMonth() + months)
 
-    // Create loan
+    // 📝 Create loan
     const newLoan = new Loan({
       userId,
       walletId,
@@ -42,7 +55,8 @@ export const applyLoan = async (req, res) => {
       totalRepayment,
       term,
       documentUrl,
-      dueDate
+      dueDate,
+      status: 'pending' // or 'active', based on your flow
     })
 
     await newLoan.save()
