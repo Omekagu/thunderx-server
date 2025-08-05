@@ -55,8 +55,7 @@ export const applyLoan = async (req, res) => {
       totalRepayment,
       term,
       documentUrl,
-      dueDate,
-      status: 'pending' // or 'active', based on your flow
+      dueDate
     })
 
     await newLoan.save()
