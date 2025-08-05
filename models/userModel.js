@@ -4,7 +4,10 @@ const UserSchema = new mongoose.Schema(
   {
     firstname: { type: String },
     lastname: { type: String },
-    referralcode: { type: String },
+    refCode: { type: String, unique: true, index: true },
+    referredBy: { type: String }, // stores refCode of the inviter
+    referralBonus: { type: Number, default: 0 },
+    referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     email: { type: String },
     phoneNumber: { type: String },
     password: {

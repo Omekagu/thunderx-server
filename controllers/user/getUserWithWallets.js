@@ -14,7 +14,10 @@ const getUserWithWallets = async (req, res) => {
       user: {
         firstname: user.firstname,
         lastname: user.lastname,
+        name: `${user.firstname} ${user.lastname}`,
         email: user.email,
+        refCode: user.refCode,
+        referralBonus: user.referralBonus,
         phoneNumber: user.phoneNumber,
         userCountry: user.userCountry,
         userBalance: user.wallet.balance
