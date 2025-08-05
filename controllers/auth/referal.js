@@ -8,9 +8,11 @@ export const getReferrals = async (req, res) => {
     const referredUsers = await User.find({ referredBy: code })
 
     const referrals = referredUsers.map(user => ({
-      name: user.name,
+      lastname: user.lastname,
+      firstname: user.firstname,
       email: user.email,
       joined: user.createdAt,
+      balance: user.userBalance,
       earnings: user.earningsFromReferrals || 0
     }))
 
