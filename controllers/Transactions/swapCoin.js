@@ -1,3 +1,4 @@
+import Transaction from '../../models/Transaction.js'
 import User from '../../models/UserModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
@@ -19,7 +20,6 @@ export const swapCoins = async (req, res) => {
   if (toWallet) {
     toWallet.balance += parseFloat(receiveAmount)
   } else {
-    // create if not existing
     await UserWallet.create({
       userId,
       symbol: toCoin,
@@ -32,6 +32,16 @@ export const swapCoins = async (req, res) => {
 
   await fromWallet.save()
   if (toWallet) await toWallet.save()
+
+  await Transaction.create({
+    userId,
+    amount: parseFloat(receiveAmount),
+    coin: toCoin,
+    type: 'Coin Swap',
+    status: 'success',
+    method: 'Wallet',
+    receipt: ''
+  })
 
   res.json({ message: 'Swap successful' })
 }

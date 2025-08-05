@@ -1,4 +1,5 @@
 import Loan from '../../models/LoanModel.js'
+import Transaction from '../../models/Transaction.js'
 import UserWallet from '../../models/UserWallet.js'
 
 export const applyLoan = async (req, res) => {
@@ -59,6 +60,16 @@ export const applyLoan = async (req, res) => {
     })
 
     await newLoan.save()
+
+    await Transaction.create({
+      userId,
+      amount,
+      coin: wallet.symbol,
+      type: 'Loan',
+      status: 'pending',
+      method: 'Wallet',
+      receipt: documentUrl
+    })
 
     res.status(201).json({
       message: 'Loan application submitted',

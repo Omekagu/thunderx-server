@@ -9,6 +9,7 @@ const TransactionSchema = new mongoose.Schema({
     enum: [
       'Deposit',
       'Withdraw',
+      'Coin Swap',
       'Buy',
       'Sell',
       'Interest',
