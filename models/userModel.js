@@ -25,9 +25,6 @@ const UserSchema = new mongoose.Schema(
       totalRepaid: { type: Number, default: 0 },
       outstandingBalance: { type: Number, default: 0 }
     },
-    resetOTP: Number,
-    otpExpires: Date,
-    otpVerified: { type: Boolean, default: false },
     createdAt: {
       type: Date,
       default: Date.now
