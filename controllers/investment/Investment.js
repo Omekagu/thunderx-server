@@ -94,12 +94,34 @@ export const getUserInvestments = async (req, res) => {
   try {
     const userId = req.params.userId
 
-    const investments = await UserInvestment.find({ userId })
+    let investments = await UserInvestment.find({ userId })
       .populate({
         path: 'planId',
-        select: 'title category profitRate durationDays minDeposit maxDeposit' // Adjust fields as needed
+        select: 'title category profitRate durationDays minDeposit maxDeposit'
       })
-      .sort({ createdAt: -1 }) // optional: newest first
+      .sort({ createdAt: -1 })
+
+    // Check and update completed status
+    const now = new Date()
+
+    for (let investment of investments) {
+      const startDate = new Date(investment.startDate)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + investment.durationDays)
+
+      if (now >= endDate && investment.status !== 'completed') {
+        investment.status = 'completed'
+        await investment.save()
+      }
+    }
+
+    // Re-fetch to return updated statuses
+    investments = await UserInvestment.find({ userId })
+      .populate({
+        path: 'planId',
+        select: 'title category profitRate durationDays minDeposit maxDeposit'
+      })
+      .sort({ createdAt: -1 })
 
     res.status(200).json({ status: 'ok', data: investments })
   } catch (err) {
