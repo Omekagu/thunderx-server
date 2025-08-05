@@ -9,17 +9,24 @@ const register = async (req, res) => {
   const surname = req.body.surname?.trim()
   const email = req.body.email?.trim().toLowerCase()
   const phoneNumber = req.body.phoneNumber?.trim()
-  const referralCode = req.body.referralCode?.trim().toLowerCase()
+  const referralCode = req.body.referralCode
   const { password, userCountry } = req.body
 
+  console.log(req.body)
   try {
     // Check if user already exists
     const oldUser = await User.findOne({ email })
     if (oldUser) return res.status(400).json({ message: 'User already exists' })
 
-    // check referralcode
-    if (referralCode && !referrer) {
-      return res.status(400).json({ message: 'Invalid referral code' })
+    // Find referrer if referralCode is provided
+    let referredBy = null
+    let referrer = null
+    if (referralCode) {
+      referrer = await User.findOne({ refCode: referralCode })
+      if (!referrer) {
+        return res.status(400).json({ message: 'Invalid referral code' })
+      }
+      referredBy = referrer.refCode
     }
 
     // Hash password
@@ -31,15 +38,6 @@ const register = async (req, res) => {
       newRefCode = nanoid(8) // ensure uniqueness
     }
 
-    // Find referrer if referralCode is provided
-    let referredBy = null
-    if (referralCode) {
-      const referrer = await User.findOne({ refCode: referralCode })
-      if (referrer) {
-        referredBy = referrer.refCode
-      }
-    }
-
     // Create new user
     const newUser = new User({
       firstname,
@@ -47,7 +45,7 @@ const register = async (req, res) => {
       email,
       phoneNumber,
       hashedPassword,
-      password, // optional: you may want to remove storing raw password
+      password,
       userCountry,
       refCode: newRefCode,
       referredBy
