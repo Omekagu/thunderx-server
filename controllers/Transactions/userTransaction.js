@@ -5,7 +5,7 @@ export const getUserTransaction = async (req, res) => {
   try {
     const transactions = await Transaction.find({
       userId: req.params.userId
-    }).sort({ date: -1 })
+    }).sort({ createdAt: -1 })
     res.status(200).json({ status: 'ok', data: transactions })
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message })
