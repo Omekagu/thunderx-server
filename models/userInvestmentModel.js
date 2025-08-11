@@ -7,6 +7,8 @@ const UserInvestmentSchema = new mongoose.Schema({
     ref: 'InvestmentPlan',
     required: true
   },
+  walletSymbol: { type: String, required: true },
+  walletAddress: { type: String, required: true },
   amount: { type: Number, required: true },
   dailyProfitRate: { type: Number, required: true }, // for tracking plan % at investment time
   durationDays: { type: Number, required: true },

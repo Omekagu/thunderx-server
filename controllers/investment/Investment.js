@@ -58,6 +58,8 @@ export const postUserInvestment = async (req, res) => {
       userId,
       planId,
       amount,
+      walletSymbol,
+      walletAddress,
       dailyProfitRate: plan.profitRate,
       durationDays: plan.durationDays,
       startDate: new Date(),
@@ -112,6 +114,29 @@ export const getUserInvestments = async (req, res) => {
       if (now >= endDate && investment.status !== 'completed') {
         investment.status = 'completed'
         await investment.save()
+
+        // Credit the user's wallet used for investing
+        const wallet = await UserWallet.findOne({
+          userId: investment.userId,
+          symbol: investment.walletSymbol,
+          walletAddress: investment.walletAddress
+        })
+
+        if (wallet) {
+          wallet.balance += investment.expectedReturn
+          await wallet.save()
+
+          // Optionally, record a transaction for the payout
+          await Transaction.create({
+            userId: investment.userId,
+            amount: investment.expectedReturn,
+            coin: investment.walletSymbol,
+            type: 'Investment-Payout',
+            status: 'success',
+            method: 'Wallet',
+            receipt: investment._id?.toString() || ''
+          })
+        }
       }
     }
 

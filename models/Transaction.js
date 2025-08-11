@@ -15,6 +15,8 @@ const TransactionSchema = new mongoose.Schema({
       'Interest',
       'Loan',
       'Transfer',
+      'Investment - Payout',
+      'Referral',
       'Investment' // ✅ Added to track investment funding
     ],
     required: true

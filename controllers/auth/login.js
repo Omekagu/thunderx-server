@@ -5,6 +5,7 @@ import { jwtSecret } from '../../utilities/jwtSecret.js'
 
 const login = async (req, res) => {
   const { email, password } = req.body
+  console.log(email, password)
   try {
     User.findOne({ email }).then(user => {
       if (!user) {
