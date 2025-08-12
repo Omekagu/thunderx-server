@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const KycSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   idDocumentUrl: { type: String, required: true },
   address: { type: String, required: true },
   dateOfBirth: { type: String, required: true },
