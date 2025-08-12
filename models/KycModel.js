@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const KycSchema = new mongoose.Schema({
   userId: { type: String, required: true },
@@ -14,4 +14,6 @@ const KycSchema = new mongoose.Schema({
   submittedAt: { type: Date, default: Date.now }
 })
 
-module.exports = mongoose.model('Kyc', KycSchema)
+const Kyc = mongoose.model('Kyc', KycSchema)
+
+export default Kyc
