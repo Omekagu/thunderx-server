@@ -126,7 +126,7 @@ export const getUserInvestments = async (req, res) => {
           wallet.balance += investment.expectedReturn
           await wallet.save()
 
-          // Optionally, record a transaction for the payout
+          // Record a transaction for the payout
           await Transaction.create({
             userId: investment.userId,
             amount: investment.expectedReturn,

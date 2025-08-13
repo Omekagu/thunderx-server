@@ -15,7 +15,7 @@ const TransactionSchema = new mongoose.Schema({
       'Interest',
       'Loan',
       'Transfer',
-      'Investment - Payout',
+      'Investment-Payout',
       'Referral',
       'Investment' // ✅ Added to track investment funding
     ],
@@ -28,6 +28,7 @@ const TransactionSchema = new mongoose.Schema({
   },
   method: { type: String, required: true }, // e.g. "Stripe", "Cash App", "Wallet"
   receipt: { type: String },
+  details: { type: mongoose.Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now }
 })
 

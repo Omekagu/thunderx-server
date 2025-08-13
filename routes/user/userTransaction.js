@@ -8,6 +8,7 @@ import {
   applyLoan,
   getLoanHistory
 } from '../../controllers/Transactions/loan.js'
+import { withdrawFunds } from '../../controllers/Transactions/withdrawal.js'
 
 const router = express.Router()
 
@@ -16,5 +17,6 @@ router.get('/:userId', getUserTransaction)
 router.post('/', postUserTransaction)
 router.post('/applyforloan', applyLoan)
 router.get('/getLoanHistory/:userId', getLoanHistory)
+router.post('/withdrawFunds', withdrawFunds)
 
 export default router
