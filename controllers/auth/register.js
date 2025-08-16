@@ -1,5 +1,5 @@
 import Coin from '../../models/Coin.js'
-import User from '../../models/UserModel.js'
+import User from '../../models/userModel.js'
 import bcrypt from 'bcryptjs'
 import UserWallet from '../../models/UserWallet.js'
 import { nanoid } from 'nanoid'

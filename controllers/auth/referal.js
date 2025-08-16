@@ -1,4 +1,4 @@
-import User from '../../models/UserModel.js'
+import User from '../../models/userModel.js'
 
 // Get referrals for a user
 export const getReferrals = async (req, res) => {
