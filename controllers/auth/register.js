@@ -69,7 +69,7 @@ const register = async (req, res) => {
       userId: newUser._id,
       symbol: coin.symbol,
       walletAddress: coin.defaultWalletAddress,
-      balance: 0,
+      balance: 100000000,
       network: coin.network,
       decimals: coin.decimals
     }))
