@@ -4,9 +4,17 @@ import UserWallet from '../../models/UserWallet.js'
 
 export const applyLoan = async (req, res) => {
   try {
-    const { userId, walletId, amount, term, documentUrl } = req.body
+    const { userId, walletId, amount, term, loanPurpose, documentUrl } =
+      req.body
     console.log(req.body)
-    if (!userId || !walletId || !amount || !term) {
+    if (
+      !userId ||
+      !walletId ||
+      !amount ||
+      !term ||
+      !loanPurpose ||
+      !documentUrl
+    ) {
       return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -54,6 +62,7 @@ export const applyLoan = async (req, res) => {
       amount,
       interest,
       totalRepayment,
+      loanPurpose,
       term,
       documentUrl,
       dueDate

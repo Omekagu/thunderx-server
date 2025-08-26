@@ -28,6 +28,10 @@ const loanSchema = new mongoose.Schema(
       type: String, // e.g., '3 Months', '6 Months'
       required: true
     },
+    loanPurpose: {
+      type: String, // e.g., 'Personal', 'Business'
+      required: true
+    },
     documentUrl: {
       type: String,
       required: false // optional, for KYC
