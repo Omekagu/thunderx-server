@@ -5,7 +5,8 @@ import { getReferrals } from '../../controllers/auth/referal.js'
 import {
   getAllUserKycs,
   getKycByUserId,
-  postKyc
+  postKyc,
+  updateKycStatus
 } from '../../controllers/user/UserKyc.js'
 
 const router = express.Router()
@@ -13,8 +14,16 @@ const router = express.Router()
 router.get('/', Users)
 router.get('/:userId', getUserWithWallets)
 router.get('/referrals/:code', getReferrals)
-router.get('/kyc/all', getAllUserKycs)
-router.post('/kyc/submit', postKyc)
+// POST submit KYC
+router.post('/kyc/send-kyc', postKyc)
+
+// GET one user’s KYC
 router.get('/kyc/:userId', getKycByUserId)
+
+// GET all KYCs
+router.get('/kyc/get/all', getAllUserKycs)
+
+// PUT verify/reject KYC
+router.put('/kyc/:userId/status', updateKycStatus)
 
 export default router
