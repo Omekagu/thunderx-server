@@ -35,11 +35,7 @@ const UserSchema = new mongoose.Schema(
       nationality: { type: String },
       phone: { type: String },
       email: { type: String },
-      status: {
-        type: String,
-        enum: ['pending', 'verified', 'rejected'],
-        default: 'pending'
-      },
+      status: { type: String, default: 'unverified' },
       submittedAt: { type: Date, default: Date.now }
     },
 

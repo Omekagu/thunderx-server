@@ -1,17 +1,14 @@
 import User from '../../models/userModel.js'
 
-export const postKyc = async (req, res) => {
+// User submits KYC
+export const submitKyc = async (req, res) => {
   try {
     const { userId, ...fields } = req.body
-    if (!userId) return res.json({ success: false, error: 'Missing userId' })
-
     const user = await User.findById(userId)
-    if (!user) return res.json({ success: false, error: 'User not found' })
+    if (!user)
+      return res.status(404).json({ success: false, error: 'User not found' })
 
-    if (user.kyc && user.kyc.status !== 'rejected') {
-      return res.json({ success: false, error: 'KYC already submitted' })
-    }
-
+    // Save fields into user.kyc object
     user.kyc = {
       ...fields,
       status: 'pending',
@@ -19,59 +16,80 @@ export const postKyc = async (req, res) => {
     }
 
     await user.save()
-
     res.json({ success: true, kyc: user.kyc })
   } catch (err) {
-    console.error('Error submitting KYC:', err)
+    console.error(err)
     res.status(500).json({ success: false, error: 'Internal server error' })
   }
 }
 
-export const getKycByUserId = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId).select(
-      'kyc firstname lastname email'
-    )
-    if (!user) return res.json({ success: false, error: 'User not found' })
-
-    res.json({ success: true, kyc: user.kyc })
-  } catch (err) {
-    console.error('Error fetching user KYC:', err)
-    res.status(500).json({ success: false, error: 'Internal server error' })
-  }
-}
-
-export const getAllUserKycs = async (req, res) => {
-  try {
-    const users = await User.find({ 'kyc.status': { $exists: true } }).select(
-      'firstname lastname email kyc'
-    )
-
-    res.json({ success: true, kycs: users })
-  } catch (err) {
-    console.error('Error fetching all KYCs:', err)
-    res.status(500).json({ success: false, error: 'Internal server error' })
-  }
-}
-
+// Admin updates status
 export const updateKycStatus = async (req, res) => {
   try {
-    const { userId } = req.params
-    const { status } = req.body // 'verified' | 'rejected'
-
-    if (!['verified', 'rejected'].includes(status)) {
-      return res.json({ success: false, error: 'Invalid status' })
+    const { userId, status } = req.body
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status' })
     }
 
     const user = await User.findById(userId)
-    if (!user) return res.json({ success: false, error: 'User not found' })
+    if (!user)
+      return res.status(404).json({ success: false, error: 'User not found' })
 
     user.kyc.status = status
     await user.save()
 
     res.json({ success: true, kyc: user.kyc })
   } catch (err) {
-    console.error('Error updating KYC status:', err)
+    console.error(err)
+    res.status(500).json({ success: false, error: 'Internal server error' })
+  }
+}
+
+// Fetch user KYC
+export const getUserKyc = async (req, res) => {
+  console.log('Fetching KYC for user:', req.params.userId)
+  try {
+    const user = await User.findById(req.params.userId).select(
+      'firstname lastname email kyc'
+    )
+    if (!user)
+      return res.status(404).json({ success: false, error: 'User not found' })
+
+    res.json({
+      success: true,
+      kyc: user.kyc,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, error: 'Internal server error' })
+  }
+}
+
+// export const getAllUserKycs = async (req, res) => {
+//   try {
+//     const users = await User.find({ 'kyc.status': { $exists: true } }).select(
+//       'firstname lastname email kyc'
+//     )
+
+//     res.json({ success: true, kycs: users })
+//   } catch (err) {
+//     console.error('Error fetching all KYCs:', err)
+//     res.status(500).json({ success: false, error: 'Internal server error' })
+//   }
+// }
+// controllers/kycController.js
+export const getAllUserKycs = async (req, res) => {
+  try {
+    const users = await User.find({
+      'kyc.status': { $ne: 'unverified' }
+    }).select('firstname lastname email phoneNumber kyc')
+
+    res.json(users)
+  } catch (err) {
+    console.error(err)
     res.status(500).json({ success: false, error: 'Internal server error' })
   }
 }
