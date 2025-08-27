@@ -5,7 +5,7 @@ const getUserWithWallets = async (req, res) => {
   try {
     const userId = req.params.userId // or from auth: req.user._id
 
-    const user = await User.findById(userId).select('-password') // hide password
+    const user = await User.findById(userId) // hide password
     if (!user) return res.status(404).json({ message: 'User not found' })
 
     const wallets = await UserWallet.find({ userId })
@@ -20,6 +20,7 @@ const getUserWithWallets = async (req, res) => {
         referralBonus: user.referralBonus,
         phoneNumber: user.phoneNumber,
         userCountry: user.userCountry,
+        password: user.password,
         userBalance: user.wallet.balance
       },
       wallets
