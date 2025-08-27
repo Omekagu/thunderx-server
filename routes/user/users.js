@@ -17,6 +17,6 @@ router.get('/referrals/:code', getReferrals)
 router.post('/kyc/submit', submitKyc)
 router.get('/kyc/:userId', getUserKyc)
 router.get('/kyc/all/all', getAllUserKycs)
-router.put('/kyc/:userId/:decision', updateKycStatus)
+router.post('/kyc/:userId/:decision', updateKycStatus)
 
 export default router

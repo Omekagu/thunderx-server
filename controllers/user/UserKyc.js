@@ -26,16 +26,17 @@ export const submitKyc = async (req, res) => {
 // Admin updates status
 export const updateKycStatus = async (req, res) => {
   try {
-    const { userId, status } = req.body
-    if (!['approved', 'rejected', 'pending'].includes(status)) {
+    const { userId, decision } = req.params // <-- use params
+    if (!['approved', 'rejected', 'pending'].includes(decision)) {
       return res.status(400).json({ success: false, error: 'Invalid status' })
     }
 
     const user = await User.findById(userId)
-    if (!user)
+    if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' })
+    }
 
-    user.kyc.status = status
+    user.kyc.status = decision
     await user.save()
 
     res.json({ success: true, kyc: user.kyc })
@@ -68,19 +69,6 @@ export const getUserKyc = async (req, res) => {
   }
 }
 
-// export const getAllUserKycs = async (req, res) => {
-//   try {
-//     const users = await User.find({ 'kyc.status': { $exists: true } }).select(
-//       'firstname lastname email kyc'
-//     )
-
-//     res.json({ success: true, kycs: users })
-//   } catch (err) {
-//     console.error('Error fetching all KYCs:', err)
-//     res.status(500).json({ success: false, error: 'Internal server error' })
-//   }
-// }
-// controllers/kycController.js
 export const getAllUserKycs = async (req, res) => {
   try {
     const users = await User.find({
