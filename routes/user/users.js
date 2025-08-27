@@ -2,13 +2,18 @@ import express from 'express'
 import { Users } from '../../controllers/user/users.js'
 import getUserWithWallets from '../../controllers/user/getUserWithWallets.js'
 import { getReferrals } from '../../controllers/auth/referal.js'
-import { getKycByUserId, postKyc } from '../../controllers/user/UserKyc.js'
+import {
+  getAllUserKycs,
+  getKycByUserId,
+  postKyc
+} from '../../controllers/user/UserKyc.js'
 
 const router = express.Router()
 
 router.get('/', Users)
 router.get('/:userId', getUserWithWallets)
 router.get('/referrals/:code', getReferrals)
+router.get('/kyc/all', getAllUserKycs)
 router.post('/kyc/submit', postKyc)
 router.get('/kyc/:userId', getKycByUserId)
 

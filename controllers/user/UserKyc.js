@@ -21,3 +21,13 @@ export const getKycByUserId = async (req, res) => {
   if (!kyc) return res.json({ success: true, kyc: null })
   res.json({ success: true, kyc })
 }
+
+export const getAllUserKycs = async (req, res) => {
+  try {
+    const kycs = await Kyc.find({})
+    res.json(kycs)
+  } catch (error) {
+    console.error('Error fetching all user KYCs:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
