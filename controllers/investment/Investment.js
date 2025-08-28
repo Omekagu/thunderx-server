@@ -1,3 +1,4 @@
+import investmentPlans from '../../models/InvestmentplanModel.js'
 import InvestmentplanModel from '../../models/InvestmentplanModel.js'
 import Transaction from '../../models/Transaction.js'
 import UserInvestment from '../../models/userInvestmentModel.js'
@@ -23,7 +24,7 @@ export const postUserInvestment = async (req, res) => {
     }
 
     // Validate amount against plan limits
-    if (amount < plan.minDeposit || amount > plan.maxDeposit) {
+    if (amount < plan.minAmount || amount > plan.maxAmount) {
       return res
         .status(400)
         .json({ success: false, msg: 'Invalid investment amount' })
@@ -46,12 +47,9 @@ export const postUserInvestment = async (req, res) => {
     }
 
     // Calculate expected return: daily profit * duration
-    const totalProfit = amount * (plan.profitRate / 100) * plan.durationDays
+    const duration = parseInt(plan.payoutFrequency, 10) || 0
+    const totalProfit = amount * (plan.profitRate / 100) * duration
     const expectedReturn = parseFloat((amount + totalProfit).toFixed(2))
-
-    // Deduct investment from wallet
-    wallet.balance -= amount
-    await wallet.save()
 
     // Create the user investment entry
     const newInvestment = await UserInvestment.create({
@@ -61,9 +59,9 @@ export const postUserInvestment = async (req, res) => {
       walletSymbol,
       walletAddress,
       dailyProfitRate: plan.profitRate,
-      durationDays: plan.durationDays,
+      durationDays: duration, // normalized field
       startDate: new Date(),
-      nextPayoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // next day
+      nextPayoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // tomorrow
       expectedReturn,
       currentDay: 0,
       totalPaid: 0,
@@ -92,64 +90,118 @@ export const postUserInvestment = async (req, res) => {
   }
 }
 
+// export const getUserInvestments = async (req, res) => {
+//   try {
+//     const userId = req.params.userId
+
+//     let investments = await UserInvestment.find({ userId })
+//       .populate({
+//         path: 'planId',
+//         select: 'title category profitRate durationDays minDeposit maxDeposit'
+//       })
+//       .sort({ createdAt: -1 })
+
+//     // Check and update completed status
+//     const now = new Date()
+
+//     for (let investment of investments) {
+//       const startDate = new Date(investment.startDate)
+//       const endDate = new Date(startDate)
+//       endDate.setDate(startDate.getDate() + investment.durationDays)
+
+//       if (now >= endDate && investment.status !== 'completed') {
+//         investment.status = 'completed'
+//         await investment.save()
+
+//         // Credit the user's wallet used for investing
+//         const wallet = await UserWallet.findOne({
+//           userId: investment.userId,
+//           symbol: investment.walletSymbol,
+//           walletAddress: investment.walletAddress
+//         })
+
+//         if (wallet) {
+//           wallet.balance += investment.expectedReturn
+//           await wallet.save()
+
+//           // Record a transaction for the payout
+//           await Transaction.create({
+//             userId: investment.userId,
+//             amount: investment.expectedReturn,
+//             coin: investment.walletSymbol,
+//             type: 'Investment-Payout',
+//             status: 'success',
+//             method: 'Wallet',
+//             receipt: investment._id?.toString() || ''
+//           })
+//         }
+//       }
+//     }
+
+//     // Re-fetch to return updated statuses
+//     investments = await UserInvestment.find({ userId })
+//       .populate({
+//         path: 'planId',
+//         select: 'title category profitRate durationDays minDeposit maxDeposit'
+//       })
+//       .sort({ createdAt: -1 })
+
+//     res.status(200).json({ status: 'ok', data: investments })
+//   } catch (err) {
+//     res.status(500).json({ status: 'error', message: err.message })
+//   }
+// }
+
 export const getUserInvestments = async (req, res) => {
   try {
     const userId = req.params.userId
 
-    let investments = await UserInvestment.find({ userId })
+    // Fetch investments and populate plan details
+    const investments = await UserInvestment.find({ userId })
       .populate({
         path: 'planId',
-        select: 'title category profitRate durationDays minDeposit maxDeposit'
+        select:
+          'title name category profitRate durationType durationDays minDeposit maxDeposit'
       })
       .sort({ createdAt: -1 })
 
-    // Check and update completed status
-    const now = new Date()
-
-    for (let investment of investments) {
-      const startDate = new Date(investment.startDate)
-      const endDate = new Date(startDate)
-      endDate.setDate(startDate.getDate() + investment.durationDays)
-
-      if (now >= endDate && investment.status !== 'completed') {
-        investment.status = 'completed'
-        await investment.save()
-
-        // Credit the user's wallet used for investing
-        const wallet = await UserWallet.findOne({
-          userId: investment.userId,
-          symbol: investment.walletSymbol,
-          walletAddress: investment.walletAddress
-        })
-
-        if (wallet) {
-          wallet.balance += investment.expectedReturn
-          await wallet.save()
-
-          // Record a transaction for the payout
-          await Transaction.create({
-            userId: investment.userId,
-            amount: investment.expectedReturn,
-            coin: investment.walletSymbol,
-            type: 'Investment-Payout',
-            status: 'success',
-            method: 'Wallet',
-            receipt: investment._id?.toString() || ''
-          })
-        }
-      }
-    }
-
-    // Re-fetch to return updated statuses
-    investments = await UserInvestment.find({ userId })
-      .populate({
-        path: 'planId',
-        select: 'title category profitRate durationDays minDeposit maxDeposit'
-      })
-      .sort({ createdAt: -1 })
-
+    // Send data directly; frontend handles all calculations
     res.status(200).json({ status: 'ok', data: investments })
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message })
+  }
+}
+
+export const createInvestmentplan = async (req, res) => {
+  console.log('Create Plan Req Body:', req.body)
+  try {
+    const {
+      category,
+      name,
+      profitRate,
+      durationType,
+      minAmount,
+      maxAmount,
+      payoutFrequency,
+      capitalBack
+    } = req.body
+    const newPlan = await investmentPlans.create({
+      name,
+      profitRate,
+      minAmount,
+      maxAmount,
+      payoutFrequency,
+      durationType,
+      capitalBack,
+      category
+    })
+    console.log('New Investment Plan Created:', newPlan)
+    return res.status(201).json({ status: 'ok', data: newPlan })
+  } catch (error) {
+    console.error('API Create Plan Error:', error)
+    console.log('Error Details:', error)
+    return res
+      .status(500)
+      .json({ status: 'error', message: 'Internal server error' })
   }
 }
