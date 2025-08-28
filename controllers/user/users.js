@@ -13,6 +13,7 @@ export const Users = async (req, res) => {
 
 // update user info
 export const updateUser = async (req, res) => {
+  console.log(req.params, req.body)
   try {
     const { userId } = req.params
     const { firstname, lastname, email, phoneNumber, userCountry } = req.body
