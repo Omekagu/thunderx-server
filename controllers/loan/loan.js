@@ -151,3 +151,78 @@ export const getLoanHistory = async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message })
   }
 }
+
+export const getAllUsersLoans = async (req, res) => {
+  try {
+    const loans = await Loan.find()
+      .populate('userId', 'firstname lastname email') // get User details
+      .populate('loanId') // get LoanPlan details
+      .populate('walletId') // get UserWallet details
+      .sort({ createdAt: -1 })
+    res.status(200).json(loans)
+  } catch (err) {
+    console.error('Error fetching all users loans:', err)
+    res.status(500).json({ status: 'error', message: err.message })
+  }
+}
+
+// PATCH: Approve loan
+export const approveLoan = async (req, res) => {
+  try {
+    const loan = await Loan.findById(req.params.id)
+    if (!loan) return res.status(404).json({ error: 'Loan not found' })
+
+    // If approving, update status and wallet
+    if (req.body.status === 'Approved') {
+      loan.status = 'Approved'
+      await loan.save()
+
+      // Add amount to wallet
+      const wallet = await UserWallet.findById(loan.walletId)
+      if (wallet) {
+        wallet.balance += loan.amount
+        await wallet.save()
+      }
+      return res.json({ message: 'Loan approved and wallet updated' })
+    }
+
+    // If declining
+    if (req.body.status === 'Rejected') {
+      loan.status = 'Rejected'
+      await loan.save()
+      return res.json({ message: 'Loan rejected' })
+    }
+
+    // Edit loan (amount/status)
+    if (req.body.amount !== undefined) loan.amount = req.body.amount
+    if (req.body.status !== undefined) loan.status = req.body.status
+    await loan.save()
+    res.json({ message: 'Loan updated', loan })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+// DELETE: Delete loan
+export const deleteUserLoan = async (req, res) => {
+  try {
+    await Loan.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Loan deleted' })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+// PATCH: Add collateral to wallet (used after approval if needed)
+export const addCollateral = async (req, res) => {
+  try {
+    const { userId, walletId, amount } = req.body
+    const wallet = await UserWallet.findOne({ _id: walletId, userId })
+    if (!wallet) return res.status(404).json({ error: 'Wallet not found' })
+    wallet.balance += amount
+    await wallet.save()
+    res.json({ message: 'Collateral added', balance: wallet.balance })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
