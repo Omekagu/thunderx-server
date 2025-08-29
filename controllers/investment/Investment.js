@@ -175,6 +175,7 @@ export const getUserInvestments = async (req, res) => {
 export const getAllUserInvestments = async (req, res) => {
   try {
     const investments = await UserInvestment.find()
+      .populate({ path: 'userId', select: 'firstname lastname email' })
       .populate({
         path: 'planId',
         select:

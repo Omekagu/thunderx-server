@@ -1,7 +1,12 @@
+// models/UserInvestment.js
 import mongoose from 'mongoose'
 
 const UserInvestmentSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserInfo',
+    required: true
+  }, // FIXED here
   planId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'InvestmentPlan',
@@ -10,7 +15,7 @@ const UserInvestmentSchema = new mongoose.Schema({
   walletSymbol: { type: String, required: true },
   walletAddress: { type: String, required: true },
   amount: { type: Number, required: true },
-  dailyProfitRate: { type: Number, required: true }, // for tracking plan % at investment time
+  dailyProfitRate: { type: Number, required: true },
   durationDays: { type: Number, required: true },
   startDate: { type: Date, required: true },
   nextPayoutDate: { type: Date },
