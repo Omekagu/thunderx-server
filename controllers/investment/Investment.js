@@ -172,6 +172,22 @@ export const getUserInvestments = async (req, res) => {
   }
 }
 
+export const getAllUserInvestments = async (req, res) => {
+  try {
+    const investments = await UserInvestment.find()
+      .populate({
+        path: 'planId',
+        select:
+          'title name category profitRate durationType durationDays minDeposit maxDeposit'
+      })
+      .sort({ createdAt: -1 })
+
+    res.status(200).json({ status: 'ok', data: investments })
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message })
+  }
+}
+
 export const createInvestmentplan = async (req, res) => {
   console.log('Create Plan Req Body:', req.body)
   try {

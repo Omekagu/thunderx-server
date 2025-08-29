@@ -3,6 +3,7 @@ import {
   createInvestmentplan,
   deleteInvestmentPlan,
   getAllInvestmentPlans,
+  getAllUserInvestments,
   getUserInvestments,
   postUserInvestment,
   updateInvestmentPlan
@@ -15,6 +16,7 @@ router.delete('/:id', deleteInvestmentPlan)
 router.put('/:id', updateInvestmentPlan)
 router.post('/user-investments', postUserInvestment)
 router.get('/:userId', getUserInvestments)
+router.get('/all/investments', getAllUserInvestments)
 router.post('/create-plan', createInvestmentplan)
 
 export default router
