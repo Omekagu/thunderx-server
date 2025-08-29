@@ -1,4 +1,7 @@
 import LoanPlan from '../../models/LoanPlanModel.js'
+import Loan from '../../models/LoanModel.js'
+import Transaction from '../../models/Transaction.js'
+import UserWallet from '../../models/UserWallet.js'
 
 export const createLoanPlan = async (req, res) => {
   try {
@@ -37,5 +40,75 @@ export const updateLoan = async (req, res) => {
     res.status(200).json({ status: 'ok', data: loan })
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message })
+  }
+}
+
+export const applyForLoan = async (req, res) => {
+  try {
+    console.log(req.body)
+
+    const { userId, walletId, amount, loanPurpose, documentUrl } = req.body
+
+    if (!userId || !walletId || !amount || !loanPurpose || !documentUrl) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'All fields are required'
+      })
+    }
+
+    // 🔍 Find loan plan by purpose (name)
+    const loanPlan = await LoanPlan.findOne({ name: loanPurpose })
+    if (!loanPlan) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Loan plan not found' })
+    }
+
+    // 💰 Calculate interest
+    const interestRate = loanPlan.interestRate / 100
+    const interest = amount * interestRate
+    const totalRepayment = amount + interest
+
+    // 📅 Calculate dueDate
+    let dueDate = new Date()
+    if (loanPlan.durationType === 'months') {
+      dueDate.setMonth(dueDate.getMonth() + loanPlan.duration)
+    } else if (loanPlan.durationType === 'days') {
+      dueDate.setDate(dueDate.getDate() + loanPlan.duration)
+    }
+
+    // 📝 Create loan
+    const loan = await Loan.create({
+      userId,
+      walletId,
+      amount,
+      interest,
+      totalRepayment,
+      term: `${loanPlan.duration} ${loanPlan.durationType}`,
+      loanPurpose,
+      documentUrl,
+      dueDate
+    })
+
+    return res.status(201).json({
+      status: 'ok',
+      message: 'Loan application submitted successfully',
+      data: loan
+    })
+  } catch (err) {
+    console.error('Loan application error:', err)
+    res.status(500).json({ status: 'error', message: err.message })
+  }
+}
+
+export const getLoanHistory = async (req, res) => {
+  try {
+    const loans = await Loan.find({ userId: req.params.userId }).sort({
+      appliedOn: -1
+    })
+    res.json(loans)
+  } catch (error) {
+    console.error('Error fetching user loans:', error)
+    res.status(500).json({ error: 'Internal server error' })
   }
 }
