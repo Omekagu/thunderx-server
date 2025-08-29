@@ -6,6 +6,7 @@ import authRoutes from './routes/auth/auth.js'
 import userRoutes from './routes/user/users.js'
 import transactionRoutes from './routes/user/userTransaction.js'
 import paymentRoutes from './routes/payments/payment.js'
+import loanRoutes from './routes/loan/loan.js'
 import investmentRoutes from './routes/Investment/investment.js'
 import { EventEmitter } from 'events'
 
@@ -23,6 +24,7 @@ app.use('/auth', authRoutes)
 app.use('/user', userRoutes)
 app.use('/transactions', transactionRoutes)
 app.use('/investments', investmentRoutes)
+app.use('/loans', loanRoutes)
 app.use('/payment', paymentRoutes)
 app.get('/', (req, res) => {
   try {
