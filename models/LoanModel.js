@@ -7,9 +7,14 @@ const loanSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
+    loanId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'LoanPlan',
+      required: true
+    },
     walletId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Wallet',
+      ref: 'UserWallet',
       required: true
     },
     amount: {
@@ -26,10 +31,6 @@ const loanSchema = new mongoose.Schema(
     },
     term: {
       type: String, // e.g., '3 Months', '6 Months'
-      required: true
-    },
-    loanPurpose: {
-      type: String, // e.g., 'Personal', 'Business'
       required: true
     },
     documentUrl: {

@@ -45,10 +45,11 @@ export const updateLoan = async (req, res) => {
 }
 
 export const applyForLoan = async (req, res) => {
+  console.log('Applying for loan:', req.body)
   try {
-    const { userId, walletId, amount, loanPurpose, documentUrl } = req.body
+    const { userId, walletId, loanId, amount, documentUrl } = req.body
 
-    if (!userId || !walletId || !amount || !loanPurpose || !documentUrl) {
+    if (!userId || !walletId || !loanId || !amount || !documentUrl) {
       return res.status(400).json({
         status: 'error',
         message: 'All fields are required'
@@ -69,7 +70,7 @@ export const applyForLoan = async (req, res) => {
     }
 
     // Find loan plan
-    const loanPlan = await LoanPlan.findOne({ name: loanPurpose })
+    const loanPlan = await LoanPlan.findOne({ _id: loanId })
     if (!loanPlan) {
       return res
         .status(404)
@@ -101,11 +102,11 @@ export const applyForLoan = async (req, res) => {
     const loan = await Loan.create({
       userId,
       walletId,
+      loanId,
       amount,
       interest,
       totalRepayment,
       term: `${loanPlan.duration} ${loanPlan.durationType}`,
-      loanPurpose,
       documentUrl,
       dueDate,
       status: 'Pending'
@@ -134,14 +135,19 @@ export const applyForLoan = async (req, res) => {
   }
 }
 
+// controllers/loanController.js
 export const getLoanHistory = async (req, res) => {
   try {
-    const loans = await Loan.find({ userId: req.params.userId }).sort({
-      appliedOn: -1
-    })
-    res.json(loans)
-  } catch (error) {
-    console.error('Error fetching user loans:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    const { userId } = req.params
+
+    const loans = await Loan.find({ userId })
+      .populate('loanId') // get LoanPlan details
+      .populate('walletId') // get UserWallet details
+      .sort({ createdAt: -1 })
+
+    res.status(200).json(loans)
+  } catch (err) {
+    console.error('Error fetching loan history:', err)
+    res.status(500).json({ status: 'error', message: err.message })
   }
 }
