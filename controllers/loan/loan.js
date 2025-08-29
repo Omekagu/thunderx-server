@@ -2,6 +2,7 @@ import LoanPlan from '../../models/LoanPlanModel.js'
 import Loan from '../../models/LoanModel.js'
 import Transaction from '../../models/Transaction.js'
 import UserWallet from '../../models/UserWallet.js'
+// import UserWallet from '../../models/UserWallet.js'
 
 export const createLoanPlan = async (req, res) => {
   try {
@@ -45,8 +46,6 @@ export const updateLoan = async (req, res) => {
 
 export const applyForLoan = async (req, res) => {
   try {
-    console.log(req.body)
-
     const { userId, walletId, amount, loanPurpose, documentUrl } = req.body
 
     if (!userId || !walletId || !amount || !loanPurpose || !documentUrl) {
@@ -56,12 +55,11 @@ export const applyForLoan = async (req, res) => {
       })
     }
 
-    // 🔒 Check if user already has an active/pending loan
+    // Check for active loan
     const existingLoan = await Loan.findOne({
       userId,
-      status: { $in: ['Pending', 'Approved'] } // ✅ Block if pending or approved
+      status: { $in: ['Pending', 'Approved'] }
     })
-
     if (existingLoan) {
       return res.status(403).json({
         status: 'error',
@@ -70,7 +68,7 @@ export const applyForLoan = async (req, res) => {
       })
     }
 
-    // 🔍 Find loan plan by purpose (name)
+    // Find loan plan
     const loanPlan = await LoanPlan.findOne({ name: loanPurpose })
     if (!loanPlan) {
       return res
@@ -78,20 +76,28 @@ export const applyForLoan = async (req, res) => {
         .json({ status: 'error', message: 'Loan plan not found' })
     }
 
-    // 💰 Calculate interest
+    // Find wallet to get symbol
+    const wallet = await UserWallet.findById(walletId)
+    if (!wallet) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Wallet not found' })
+    }
+
+    // Calculate interest
     const interestRate = loanPlan.interestRate / 100
     const interest = amount * interestRate
     const totalRepayment = amount + interest
 
-    // 📅 Calculate dueDate
+    // Calculate due date
     let dueDate = new Date()
     if (loanPlan.durationType === 'months') {
       dueDate.setMonth(dueDate.getMonth() + loanPlan.duration)
-    } else if (loanPlan.durationType === 'days') {
+    } else {
       dueDate.setDate(dueDate.getDate() + loanPlan.duration)
     }
 
-    // 📝 Create loan
+    // Create loan
     const loan = await Loan.create({
       userId,
       walletId,
@@ -102,13 +108,25 @@ export const applyForLoan = async (req, res) => {
       loanPurpose,
       documentUrl,
       dueDate,
-      status: 'Pending' // Default new applications to "Pending"
+      status: 'Pending'
+    })
+
+    // Log transaction with wallet.symbol
+    const tx = await Transaction.create({
+      userId,
+      amount,
+      coin: wallet.symbol, // ✅ use wallet symbol here
+      type: 'Loan',
+      status: 'pending',
+      method: 'Wallet',
+      receipt: documentUrl
     })
 
     return res.status(201).json({
       status: 'ok',
       message: 'Loan application submitted successfully',
-      data: loan
+      data: loan,
+      transaction: { id: tx._id, tag: 'thunderxcash' }
     })
   } catch (err) {
     console.error('Loan application error:', err)
