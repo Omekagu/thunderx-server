@@ -205,3 +205,19 @@ export const createInvestmentplan = async (req, res) => {
       .json({ status: 'error', message: 'Internal server error' })
   }
 }
+
+// DELETE
+export const deleteInvestmentPlan = async (req, res) => {
+  await InvestmentplanModel.findByIdAndDelete(req.params.id)
+  res.json({ success: true, message: 'Deleted successfully' })
+}
+
+// UPDATE
+export const updateInvestmentPlan = async (req, res) => {
+  const updated = await InvestmentplanModel.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  )
+  res.json({ success: true, data: updated })
+}
