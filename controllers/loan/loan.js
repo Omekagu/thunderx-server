@@ -56,6 +56,20 @@ export const applyForLoan = async (req, res) => {
       })
     }
 
+    // 🔒 Check if user already has an active/pending loan
+    const existingLoan = await Loan.findOne({
+      userId,
+      status: { $in: ['Pending', 'Approved'] } // ✅ Block if pending or approved
+    })
+
+    if (existingLoan) {
+      return res.status(403).json({
+        status: 'error',
+        message:
+          'You already have an active or pending loan. Please settle it before applying for a new one.'
+      })
+    }
+
     // 🔍 Find loan plan by purpose (name)
     const loanPlan = await LoanPlan.findOne({ name: loanPurpose })
     if (!loanPlan) {
@@ -87,7 +101,8 @@ export const applyForLoan = async (req, res) => {
       term: `${loanPlan.duration} ${loanPlan.durationType}`,
       loanPurpose,
       documentUrl,
-      dueDate
+      dueDate,
+      status: 'Pending' // Default new applications to "Pending"
     })
 
     return res.status(201).json({
