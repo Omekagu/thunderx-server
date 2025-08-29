@@ -1,9 +1,9 @@
-import Transaction from '../../models/Transaction.js'
+import Transactions from '../../models/Transaction.js'
 
 // GET all transactions for a user
 export const getUserTransaction = async (req, res) => {
   try {
-    const transactions = await Transaction.find({
+    const transactions = await Transactions.find({
       userId: req.params.userId
     }).sort({ createdAt: -1 })
     res.status(200).json({ status: 'ok', data: transactions })
@@ -16,7 +16,7 @@ export const getUserTransaction = async (req, res) => {
 export const postUserTransaction = async (req, res) => {
   const { userId, type, amount, status, description } = req.body
   try {
-    const newTx = await Transaction.create({
+    const newTx = await Transactions.create({
       userId,
       type,
       amount,

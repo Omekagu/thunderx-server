@@ -1,4 +1,4 @@
-import Transaction from '../models/Transaction.js'
+import Transactions from '../models/Transaction.js'
 
 export const logTransaction = async ({
   userId,
@@ -7,7 +7,7 @@ export const logTransaction = async ({
   method,
   receiptPath
 }) => {
-  const newTx = new Transaction({
+  const newTx = new Transactions({
     userId,
     amount,
     coin,

@@ -1,6 +1,6 @@
 import investmentPlans from '../../models/InvestmentplanModel.js'
 import InvestmentplanModel from '../../models/InvestmentplanModel.js'
-import Transaction from '../../models/Transaction.js'
+import Transactions from '../../models/Transaction.js'
 import UserInvestment from '../../models/userInvestmentModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
@@ -69,7 +69,7 @@ export const postUserInvestment = async (req, res) => {
       lastUpdated: new Date()
     })
 
-    await Transaction.create({
+    await Transactions.create({
       userId,
       amount,
       coin: walletSymbol,

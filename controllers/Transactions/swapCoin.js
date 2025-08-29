@@ -1,5 +1,5 @@
-import Transaction from '../../models/Transaction.js'
-import User from '../../models/userModel.js'
+import Transactions from '../../models/Transaction.js'
+import User from '../../models/UserModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
 export const swapCoins = async (req, res) => {
@@ -33,7 +33,7 @@ export const swapCoins = async (req, res) => {
   await fromWallet.save()
   if (toWallet) await toWallet.save()
 
-  await Transaction.create({
+  await Transactions.create({
     userId,
     amount: parseFloat(receiveAmount),
     coin: toCoin,

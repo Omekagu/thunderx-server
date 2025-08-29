@@ -1,7 +1,8 @@
 import LoanPlan from '../../models/LoanPlanModel.js'
 import Loan from '../../models/LoanModel.js'
-import Transaction from '../../models/Transaction.js'
+import Transactions from '../../models/Transaction.js'
 import UserWallet from '../../models/UserWallet.js'
+
 // import UserWallet from '../../models/UserWallet.js'
 
 export const createLoanPlan = async (req, res) => {
@@ -113,21 +114,20 @@ export const applyForLoan = async (req, res) => {
     })
 
     // Log transaction with wallet.symbol
-    const tx = await Transaction.create({
-      userId,
-      amount,
-      coin: wallet.symbol, // ✅ use wallet symbol here
-      type: 'Loan',
-      status: 'pending',
-      method: 'Wallet',
-      receipt: documentUrl
-    })
+    // const tx = await Transaction.create({
+    //   userId,
+    //   amount,
+    //   coin: wallet.symbol, // ✅ use wallet symbol here
+    //   type: 'Loan',
+    //   status: 'pending',
+    //   method: 'Wallet',
+    //   receipt: documentUrl
+    // })
 
     return res.status(201).json({
       status: 'ok',
       message: 'Loan application submitted successfully',
-      data: loan,
-      transaction: { id: tx._id, tag: 'thunderxcash' }
+      data: loan
     })
   } catch (err) {
     console.error('Loan application error:', err)
@@ -172,7 +172,6 @@ export const approveLoan = async (req, res) => {
     const loan = await Loan.findById(req.params.id)
     if (!loan) return res.status(404).json({ error: 'Loan not found' })
 
-    // If approving, update status and wallet
     if (req.body.status === 'Approved') {
       loan.status = 'Approved'
       await loan.save()
@@ -183,14 +182,47 @@ export const approveLoan = async (req, res) => {
         wallet.balance += loan.amount
         await wallet.save()
       }
-      return res.json({ message: 'Loan approved and wallet updated' })
+
+      // Create a transaction for approval
+      const tx = await Transactions.create({
+        userId: loan.userId,
+        loanId: loan._id,
+        amount: loan.amount,
+        coin: wallet.symbol,
+        type: 'Loan',
+        status: 'success',
+        method: 'Wallet',
+        action: 'Approved',
+        receipt: loan.documentUrl || undefined
+      })
+
+      return res.json({
+        message: 'Loan approved, wallet updated, transaction logged',
+        transaction: tx
+      })
     }
 
-    // If declining
     if (req.body.status === 'Rejected') {
       loan.status = 'Rejected'
       await loan.save()
-      return res.json({ message: 'Loan rejected' })
+
+      // Create a transaction for rejection
+      const tx = await Transaction.create({
+        userId: loan.userId,
+        loanId: loan._id,
+        amount: loan.amount,
+        coin: loan.walletId?.symbol || undefined,
+        type: 'Loan',
+        status: 'failed',
+        method: 'Wallet',
+        action: 'Rejected',
+        receipt: loan.documentUrl || undefined
+      })
+
+      return res.json({
+        message: 'Loan rejected, transaction logged',
+        transaction: tx
+      })
     }
 
     // Edit loan (amount/status)
@@ -217,6 +249,7 @@ export const deleteUserLoan = async (req, res) => {
 export const addCollateral = async (req, res) => {
   try {
     const { userId, walletId, amount } = req.body
+
     const wallet = await UserWallet.findOne({ _id: walletId, userId })
     if (!wallet) return res.status(404).json({ error: 'Wallet not found' })
     wallet.balance += amount

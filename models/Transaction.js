@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const TransactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  loanId: { type: mongoose.Schema.Types.ObjectId, ref: 'Loan' }, // <-- Add this line
   amount: { type: Number, required: true },
   coin: { type: String, required: true }, // e.g. "USD", "BTC", "ETH"
   type: {
@@ -17,7 +18,7 @@ const TransactionSchema = new mongoose.Schema({
       'Transfer',
       'Investment-Payout',
       'Referral',
-      'Investment' // ✅ Added to track investment funding
+      'Investment'
     ],
     required: true
   },
@@ -32,5 +33,8 @@ const TransactionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 })
 
-export default mongoose.models.Transaction ||
+const Transactions =
+  mongoose.models.Transaction ||
   mongoose.model('Transaction', TransactionSchema)
+
+export default Transactions

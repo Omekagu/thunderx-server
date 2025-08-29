@@ -1,5 +1,5 @@
-import Transaction from '../../models/Transaction.js'
-import User from '../../models/userModel.js'
+import Transactions from '../../models/Transaction.js'
+import User from '../../models/UserModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
 export const withdrawFunds = async (req, res) => {
@@ -78,7 +78,7 @@ export const withdrawFunds = async (req, res) => {
     }
 
     // Record transaction as pending
-    await Transaction.create({
+    await Transactions.create({
       userId,
       amount: parseFloat(amount),
       coin: walletSymbol,
