@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema(
         return !this.provider
       }
     },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
     hashedPassword: { type: String },
     userCountry: { type: String },
 
