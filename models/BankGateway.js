@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const GatewaySchema = new mongoose.Schema(
+const BankGatewaySchema = new mongoose.Schema(
   {
     provider: { type: String, required: true },
     country: { type: String, required: true },
@@ -13,6 +13,7 @@ const GatewaySchema = new mongoose.Schema(
 )
 
 const BankGateways =
-  mongoose.models.BankGateway || mongoose.model('BankGateway', GatewaySchema)
+  mongoose.models.BankGateway ||
+  mongoose.model('BankGateway', BankGatewaySchema)
 
 export default BankGateways
