@@ -13,6 +13,11 @@ import {
   getBankTransferdetails,
   updateBankTransferdetails
 } from '../../controllers/admin/BankTransfer.js'
+import {
+  createCoinwallet,
+  deleteCoinWallet,
+  getCoinWallet
+} from '../../controllers/admin/WalletManager.js'
 
 const router = express.Router()
 
@@ -28,5 +33,10 @@ router.delete('/deletebankgateway/:id', deletebankgateway)
 // Bank Transfer
 router.get('/getBantTransferdetails', getBankTransferdetails)
 router.post('/updateBankTransferdetails', updateBankTransferdetails)
+
+// wallet Manager
+router.get('/get-coinwallet', getCoinWallet)
+router.post('/create-coinwallet', createCoinwallet)
+router.delete('/delete-coinwallet/:id', deleteCoinWallet)
 
 export default router
