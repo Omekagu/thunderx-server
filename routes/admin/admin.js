@@ -18,6 +18,10 @@ import {
   deleteCoinWallet,
   getCoinWallet
 } from '../../controllers/admin/WalletManager.js'
+import {
+  createpopUpNotification,
+  getPopupNotification
+} from '../../controllers/admin/PopNotification.js'
 
 const router = express.Router()
 
@@ -38,5 +42,9 @@ router.post('/updateBankTransferdetails', updateBankTransferdetails)
 router.get('/get-coinwallet', getCoinWallet)
 router.post('/create-coinwallet', createCoinwallet)
 router.delete('/delete-coinwallet/:id', deleteCoinWallet)
+
+// Pop notification
+router.post('/popup-notification', createpopUpNotification)
+router.get('/popup-notification', getPopupNotification)
 
 export default router
