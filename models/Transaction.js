@@ -1,7 +1,11 @@
 import mongoose from 'mongoose'
 
 const TransactionSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserInfo',
+    required: true
+  },
   loanId: { type: mongoose.Schema.Types.ObjectId, ref: 'Loan' }, // <-- Add this line
   amount: { type: Number, required: true },
   coin: { type: String, required: true }, // e.g. "USD", "BTC", "ETH"

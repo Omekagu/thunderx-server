@@ -4,7 +4,7 @@ const userWalletSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'UserInfo',
       required: true
     },
     symbol: { type: String, required: true },

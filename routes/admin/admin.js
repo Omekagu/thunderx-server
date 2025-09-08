@@ -22,6 +22,13 @@ import {
   createpopUpNotification,
   getPopupNotification
 } from '../../controllers/admin/PopNotification.js'
+import {
+  createEmailTemplate,
+  deleteEmailTemplate,
+  getEmailTemplate,
+  getOneEmailTemplate,
+  updateEmailTemplate
+} from '../../controllers/admin/EmailTemplate.js'
 
 const router = express.Router()
 
@@ -46,5 +53,12 @@ router.delete('/delete-coinwallet/:id', deleteCoinWallet)
 // Pop notification
 router.post('/popup-notification', createpopUpNotification)
 router.get('/popup-notification', getPopupNotification)
+
+// Email Template
+router.get('/email', getEmailTemplate)
+router.get('/email/:id', getOneEmailTemplate)
+router.post('/email', createEmailTemplate)
+router.put('/email/:id', updateEmailTemplate)
+router.delete('/email/:id', deleteEmailTemplate)
 
 export default router
