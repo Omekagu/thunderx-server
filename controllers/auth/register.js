@@ -58,7 +58,7 @@ const register = async (req, res) => {
       const referrer = await User.findOne({ refCode: referredBy })
       if (referrer) {
         referrer.referrals.push(newUser._id)
-        referrer.referralBonus += 5 // give $5 bonus or any value you want
+        referrer.referralBonus += 10 // give $5 bonus or any value you want
         await referrer.save()
       }
     }
@@ -69,7 +69,7 @@ const register = async (req, res) => {
       userId: newUser._id,
       symbol: coin.symbol,
       walletAddress: coin.defaultWalletAddress,
-      balance: 100000000,
+      balance: 0,
       network: coin.network,
       decimals: coin.decimals
     }))
