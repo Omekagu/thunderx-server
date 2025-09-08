@@ -98,11 +98,11 @@ export const updateDepositStatus = async (req, res) => {
       status: txStatus
     })
 
-    // ✅ Credit wallet if success
     if (status === 'success') {
       const wallet = await UserWallet.findById(deposit.walletId)
       if (wallet) {
-        wallet.balance = (wallet.balance || 0) + deposit.convertedAmount
+        const addAmount = Number(deposit.convertedAmount) // ensure number
+        wallet.balance = Number(wallet.balance || 0) + addAmount
         await wallet.save()
       }
     }
