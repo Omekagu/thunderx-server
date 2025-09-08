@@ -22,7 +22,7 @@ const withdrawalSchema = new mongoose.Schema(
     details: { type: Object, required: true }, // flexible: cryptoAddress, bankInfo, etc
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
+      enum: ['pending', 'success', 'rejected'],
       default: 'pending'
     },
     approvedAt: { type: Date }

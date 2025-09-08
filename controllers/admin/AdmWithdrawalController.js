@@ -1,10 +1,11 @@
+import Transactions from '../../models/Transaction.js'
 import WithdrawalModel from '../../models/withdrawal.js'
 
 // Get all withdrawals
 export const getWithdrawals = async (req, res) => {
   try {
     const withdrawals = await WithdrawalModel.find()
-      .populate('userId', 'name email')
+      .populate('userId', 'firstname lastname email')
       .populate('transactionId')
       .sort({ createdAt: -1 })
 
@@ -15,7 +16,6 @@ export const getWithdrawals = async (req, res) => {
   }
 }
 
-// Approve / Decline / Pending update
 export const updateWithdrawalStatus = async (req, res) => {
   try {
     const { status } = req.body // "approved" | "rejected" | "pending"
@@ -23,13 +23,22 @@ export const updateWithdrawalStatus = async (req, res) => {
 
     if (!withdrawal) return res.status(404).json({ message: 'Not found' })
 
+    // ✅ Update withdrawal
     withdrawal.status = status
-    if (status === 'approved') withdrawal.approvedAt = new Date()
+    if (status === 'approved') {
+      withdrawal.approvedAt = new Date()
+    } else {
+      withdrawal.approvedAt = null
+    }
     await withdrawal.save()
 
-    // Mirror status in transaction
-    await TransactionModel.findByIdAndUpdate(withdrawal.transactionId, {
-      status
+    // ✅ Map withdrawal status -> transaction status
+    let txStatus = 'pending'
+    if (status === 'success') txStatus = 'success'
+    if (status === 'rejected') txStatus = 'failed'
+
+    await Transactions.findByIdAndUpdate(withdrawal.transactionId, {
+      status: txStatus
     })
 
     res.json(withdrawal)
