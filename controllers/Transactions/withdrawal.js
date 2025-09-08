@@ -1,6 +1,6 @@
 import Transactions from '../../models/Transaction.js'
 import withdrawalModel from '../../models/withdrawal.js'
-import User from '../../models/UserModel.js'
+import User from '../../models/userModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
 export const withdrawFunds = async (req, res) => {
