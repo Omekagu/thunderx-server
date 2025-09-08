@@ -10,7 +10,7 @@ const depositSchema = new mongoose.Schema(
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'UserInfo',
       required: true
     },
     amount: { type: Number, required: true },
@@ -19,7 +19,11 @@ const depositSchema = new mongoose.Schema(
       enum: ['crypto', 'bank', 'cashapp', 'applepay'],
       required: true
     },
+    convertedAmount: { type: String, required: true }, // amount after conversion to selected coin
+    reference: { type: String, required: true, unique: true },
+    coinRate: { type: Number, required: true }, // conversion rate at time of deposit
     walletId: { type: String, required: true }, // selected wallet from gateways
+    walletsymbol: { type: String, required: true }, // selected wallet from gateways
     details: { type: Object }, // proof, address, bank info etc
     receipt: { type: String }, // optional uploaded file
     status: {

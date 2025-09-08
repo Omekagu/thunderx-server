@@ -1,67 +1,108 @@
-// controllers/depositController.js
 import DepositModel from '../../models/depositModel.js'
 import Transactions from '../../models/Transaction.js'
-import User from '../../models/userModel.js'
+import { v4 as uuidv4 } from 'uuid'
 
-// User creates a deposit request
+// Create a new deposit
 export const createDeposit = async (req, res) => {
-  try {
-    const { userId, amount, method, walletId, details, receipt } = req.body
+  console.log(req.body)
 
-    // 1. Create Transaction first
+  try {
+    const {
+      userId,
+      walletId,
+      method,
+      amount,
+      coinRate,
+      convertedAmount,
+      walletsymbol,
+      receipt
+    } = req.body
+
+    if (
+      !userId ||
+      !walletId ||
+      !amount ||
+      !method ||
+      !coinRate ||
+      !convertedAmount ||
+      !walletsymbol ||
+      !receipt
+    ) {
+      return res.status(400).json({ message: 'Missing required fields' })
+    }
+
+    // Create matching Transaction
     const transaction = await Transactions.create({
       userId,
-      type: 'Deposit',
       amount: parseFloat(amount),
-      coin: walletId, // assuming walletId represents the coin symbol
+      coin: walletsymbol,
+      type: 'Deposit',
       method,
       status: 'pending'
     })
 
-    // 2. Link Deposit to Transaction
+    // Create Deposit
     const deposit = await DepositModel.create({
       userId,
       transactionId: transaction._id,
-      amount,
-      method,
       walletId,
-      details,
-      receipt
+      walletsymbol,
+      method,
+      amount,
+      coinRate,
+      convertedAmount,
+      receipt,
+      reference: uuidv4()
     })
 
-    res.status(201).json(deposit)
+    res.status(201).json({ message: 'Deposit created', deposit })
   } catch (err) {
     console.error('Error creating deposit:', err)
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
-// Admin updates deposit status
+// Update deposit status (admin)
 export const updateDepositStatus = async (req, res) => {
   try {
-    const { status } = req.body
+    const { status } = req.body // "approved" | "rejected"
     const deposit = await DepositModel.findById(req.params.id)
+
     if (!deposit) return res.status(404).json({ message: 'Deposit not found' })
 
     deposit.status = status
-    if (status === 'approved') {
-      deposit.approvedAt = new Date()
-      // credit user balance
-      await User.findByIdAndUpdate(deposit.userId, {
-        $inc: { balance: deposit.amount }
-      })
-    }
+    if (status === 'approved') deposit.approvedAt = new Date()
     await deposit.save()
 
     // Mirror status in transaction
-    await Transaction.findByIdAndUpdate(deposit.transactionId, {
-      status: status === 'approved' ? 'success' : status
-    })
+    await Transactions.findOneAndUpdate(
+      {
+        userId: deposit.userId,
+        walletId: deposit.walletId,
+        amount: deposit.amount
+      },
+      { status: status === 'approved' ? 'success' : status }
+    )
 
     res.json(deposit)
   } catch (err) {
-    console.error('Error updating deposit status:', err)
-    res.status(500).json({ message: err.message })
+    console.error('Error updating deposit:', err)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// Get all deposits for a user
+export const getUserDeposits = async (req, res) => {
+  try {
+    const deposits = await DepositModel.find({
+      userId: req.params.userId
+    }).sort({
+      createdAt: -1
+    })
+    res.json(deposits)
+  } catch (err) {
+    console.error('Error fetching deposits:', err)
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
