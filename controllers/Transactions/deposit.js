@@ -77,30 +77,29 @@ export const getAllDeposits = async (req, res) => {
   }
 }
 
-// Update deposit status and credit wallet if approved
+// Update deposit status and credit wallet if success
 export const updateDepositStatus = async (req, res) => {
   try {
-    const { status } = req.body // "approved" | "rejected"
+    const { status } = req.body // "success" | "rejected"
     const deposit = await DepositModel.findById(req.params.id)
 
     if (!deposit) return res.status(404).json({ message: 'Deposit not found' })
 
     deposit.status = status
-    if (status === 'approved') deposit.approvedAt = new Date()
+    if (status === 'success') deposit.approvedAt = new Date()
     await deposit.save()
 
-    // Mirror status in transaction
-    await Transactions.findOneAndUpdate(
-      {
-        userId: deposit.userId,
-        walletId: deposit.walletId,
-        amount: deposit.amount
-      },
-      { status: status === 'approved' ? 'success' : status }
-    )
+    // ✅ Map withdrawal status -> transaction status
+    let txStatus = 'pending'
+    if (status === 'success') txStatus = 'success'
+    if (status === 'rejected') txStatus = 'failed'
 
-    // ✅ Credit wallet if approved
-    if (status === 'approved') {
+    await Transactions.findByIdAndUpdate(deposit.transactionId, {
+      status: txStatus
+    })
+
+    // ✅ Credit wallet if success
+    if (status === 'success') {
       const wallet = await UserWallet.findById(deposit.walletId)
       if (wallet) {
         wallet.balance = (wallet.balance || 0) + deposit.convertedAmount
