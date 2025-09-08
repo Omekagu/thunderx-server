@@ -22,7 +22,7 @@ const depositSchema = new mongoose.Schema(
     convertedAmount: { type: String, required: true }, // amount after conversion to selected coin
     reference: { type: String, required: true, unique: true },
     coinRate: { type: Number, required: true }, // conversion rate at time of deposit
-    walletId: { type: String, required: true }, // selected wallet from gateways
+    walletId: { type: String, required: true, ref: 'UserWallet' }, // selected wallet from gateways
     walletsymbol: { type: String, required: true }, // selected wallet from gateways
     details: { type: Object }, // proof, address, bank info etc
     receipt: { type: String }, // optional uploaded file

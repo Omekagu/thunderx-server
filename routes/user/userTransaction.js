@@ -12,7 +12,7 @@ import {
 } from '../../controllers/admin/AdmWithdrawalController.js'
 import {
   createDeposit,
-  getDeposits,
+  getAllDeposits,
   updateDepositStatus
 } from '../../controllers/Transactions/deposit.js'
 
@@ -31,7 +31,7 @@ router.get('/withdraw/withdrawal', getWithdrawals)
 router.put('/withdrawal/:id/status', updateWithdrawalStatus)
 
 // DEPOSIT
-router.get('/deposit/user', getDeposits) // get user deposits
+router.get('/deposit/user', getAllDeposits) // get all user deposits
 router.post('/deposit', createDeposit) // user submit deposit
 router.put('/deposit/:id/status', updateDepositStatus)
 

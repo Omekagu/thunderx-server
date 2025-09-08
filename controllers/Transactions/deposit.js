@@ -1,6 +1,7 @@
 import DepositModel from '../../models/depositModel.js'
 import Transactions from '../../models/Transaction.js'
 import { v4 as uuidv4 } from 'uuid'
+import UserWallet from '../../models/UserWallet.js'
 
 // Create a new deposit
 export const createDeposit = async (req, res) => {
@@ -62,7 +63,21 @@ export const createDeposit = async (req, res) => {
   }
 }
 
-// Update deposit status (admin)
+// Get all deposits with user details
+export const getAllDeposits = async (req, res) => {
+  try {
+    const deposits = await DepositModel.find()
+      .populate('userId', 'firstname lastname email')
+      .populate('walletId', 'symbol balance')
+
+    res.json(deposits)
+  } catch (err) {
+    console.error('Error fetching deposits:', err)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// Update deposit status and credit wallet if approved
 export const updateDepositStatus = async (req, res) => {
   try {
     const { status } = req.body // "approved" | "rejected"
@@ -84,36 +99,18 @@ export const updateDepositStatus = async (req, res) => {
       { status: status === 'approved' ? 'success' : status }
     )
 
+    // ✅ Credit wallet if approved
+    if (status === 'approved') {
+      const wallet = await UserWallet.findById(deposit.walletId)
+      if (wallet) {
+        wallet.balance = (wallet.balance || 0) + deposit.convertedAmount
+        await wallet.save()
+      }
+    }
+
     res.json(deposit)
   } catch (err) {
     console.error('Error updating deposit:', err)
     res.status(500).json({ message: 'Server error' })
-  }
-}
-
-// Get all deposits for a user
-export const getUserDeposits = async (req, res) => {
-  try {
-    const deposits = await DepositModel.find({
-      userId: req.params.userId
-    }).sort({
-      createdAt: -1
-    })
-    res.json(deposits)
-  } catch (err) {
-    console.error('Error fetching deposits:', err)
-    res.status(500).json({ message: 'Server error' })
-  }
-}
-
-export const getDeposits = async (req, res) => {
-  try {
-    const deposits = await DepositModel.find()
-      .populate('userId', 'firstname lastname email')
-      .populate('transactionId')
-    res.json(deposits)
-  } catch (err) {
-    console.error('Error fetching deposits:', err)
-    res.status(500).json({ message: err.message })
   }
 }
