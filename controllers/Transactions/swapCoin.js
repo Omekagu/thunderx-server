@@ -1,5 +1,5 @@
 import Transactions from '../../models/Transaction.js'
-import User from '../../models/UserModel.js'
+import User from '../../models/userModel.js'
 import UserWallet from '../../models/UserWallet.js'
 
 export const swapCoins = async (req, res) => {
