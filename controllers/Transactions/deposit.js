@@ -1,7 +1,7 @@
 import DepositModel from '../../models/depositModel.js'
 import Transactions from '../../models/Transaction.js'
-import { v4 as uuidv4 } from 'uuid'
 import UserWallet from '../../models/UserWallet.js'
+import { jwtSecret } from '../../utilities/jwtSecret.js'
 
 // Create a new deposit
 export const createDeposit = async (req, res) => {
@@ -53,7 +53,7 @@ export const createDeposit = async (req, res) => {
       coinRate,
       convertedAmount,
       receipt,
-      reference: uuidv4()
+      reference: jwtSecret.slice(0, 20) // first 20 chars
     })
 
     res.status(201).json({ message: 'Deposit created', deposit })
