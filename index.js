@@ -20,12 +20,10 @@ dotenv.config()
 app.use(express.json())
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://10.0.1.8:5000',
-  // 'http://172.20.10.2:5000',
+  'http://10.0.1.8:3000',
   'http://172.20.10.2:3000',
   'http://192.168.250.88:3000',
-
-  'https://your-production-domain.com'
+  'https://thurderxtorm.netlify.app'
 ]
 
 app.use(
