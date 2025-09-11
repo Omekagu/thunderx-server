@@ -2,7 +2,7 @@ import investmentPlans from '../../models/InvestmentplanModel.js'
 import InvestmentplanModel from '../../models/InvestmentplanModel.js'
 import Transactions from '../../models/Transaction.js'
 import UserInvestment from '../../models/userInvestmentModel.js'
-import User from '../../models/UserModel.js'
+import User from '../../models/userModel.js'
 import UserWallet from '../../models/UserWallet.js'
 import sendEmail from '../../utilities/sendEmail.js'
 
