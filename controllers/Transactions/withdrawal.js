@@ -2,6 +2,7 @@ import Transactions from '../../models/Transaction.js'
 import withdrawalModel from '../../models/withdrawal.js'
 import User from '../../models/userModel.js'
 import UserWallet from '../../models/UserWallet.js'
+import sendEmail from '../../utilities/sendEmail.js'
 
 export const withdrawFunds = async (req, res) => {
   try {
@@ -94,7 +95,7 @@ export const withdrawFunds = async (req, res) => {
     })
 
     // Record withdrawal linked to transaction
-    await withdrawalModel.create({
+    const withdrawal = await withdrawalModel.create({
       transactionId: transaction._id,
       userId,
       amount: parseFloat(amount),
@@ -104,7 +105,42 @@ export const withdrawFunds = async (req, res) => {
       status: 'pending'
     })
 
-    res.json({ success: true, message: 'Withdrawal request submitted.' })
+    // --- 📧 Send Emails ---
+    // To User
+    await sendEmail(
+      user.email,
+      'Withdrawal Request Submitted',
+      `
+        <p>Hi <b>${user.firstname}</b>,</p>
+        <p>We have received your withdrawal request of <b>${amount} ${walletSymbol}</b> via <b>${method}</b>.</p>
+        <p>Your request is currently <b>pending admin approval</b>.</p>
+        <p>Transaction ID: <code>${transaction._id}</code></p>
+      `
+    )
+
+    // To Admin
+    await sendEmail(
+      process.env.ADMIN_EMAIL,
+      'New Withdrawal Request',
+      `
+        <p><b>${user.firstname} ${user.lastname}</b> (${
+        user.email
+      }) has requested a withdrawal.</p>
+        <ul>
+          <li><b>Amount:</b> ${amount} ${walletSymbol}</li>
+          <li><b>Method:</b> ${method}</li>
+          <li><b>Details:</b> ${JSON.stringify(details)}</li>
+          <li><b>Transaction ID:</b> ${transaction._id}</li>
+        </ul>
+        <p>Login to the admin panel to review and approve this withdrawal.</p>
+      `
+    )
+
+    res.json({
+      success: true,
+      message: 'Withdrawal request submitted and emails sent.',
+      withdrawal
+    })
   } catch (err) {
     console.error('Withdrawal error:', err)
     res.status(500).json({ success: false, message: 'Server error.' })
