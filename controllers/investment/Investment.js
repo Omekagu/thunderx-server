@@ -2,7 +2,9 @@ import investmentPlans from '../../models/InvestmentplanModel.js'
 import InvestmentplanModel from '../../models/InvestmentplanModel.js'
 import Transactions from '../../models/Transaction.js'
 import UserInvestment from '../../models/userInvestmentModel.js'
+import User from '../../models/UserModel.js'
 import UserWallet from '../../models/UserWallet.js'
+import sendEmail from '../../utilities/sendEmail.js'
 
 export const getAllInvestmentPlans = async (req, res) => {
   try {
@@ -59,7 +61,7 @@ export const postUserInvestment = async (req, res) => {
       walletSymbol,
       walletAddress,
       dailyProfitRate: plan.profitRate,
-      durationDays: duration, // normalized field
+      durationDays: duration,
       startDate: new Date(),
       nextPayoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // tomorrow
       expectedReturn,
@@ -69,6 +71,7 @@ export const postUserInvestment = async (req, res) => {
       lastUpdated: new Date()
     })
 
+    // Record the transaction
     await Transactions.create({
       userId,
       amount,
@@ -76,8 +79,47 @@ export const postUserInvestment = async (req, res) => {
       type: 'Investment',
       status: 'success',
       method: 'Wallet',
-      receipt: '' // optional, or store investment ID
+      receipt: '' // optional
     })
+
+    // Fetch user details for emails
+    const user = await User.findById(userId)
+
+    // Send email to user
+    await sendEmail(
+      user.email,
+      'Investment Started Successfully',
+      `
+        <p>Hi <b>${user.firstname}</b>,</p>
+        <p>Your investment has been started successfully:</p>
+        <ul>
+          <li><b>Plan:</b> ${plan.name}</li>
+          <li><b>Amount:</b> ${amount} ${walletSymbol}</li>
+          <li><b>Duration:</b> ${duration} days</li>
+          <li><b>Expected Return:</b> ${expectedReturn} ${walletSymbol}</li>
+        </ul>
+        <p>You can track your investment progress in your dashboard.</p>
+        <p>Thank you for trusting us.</p>
+      `
+    )
+
+    // Send email to admin
+    await sendEmail(
+      process.env.ADMIN_EMAIL,
+      'New Investment Alert',
+      `
+        <p>Hi Admin,</p>
+        <p>A new investment has been made:</p>
+        <ul>
+          <li><b>User:</b> ${user.firstname} ${user.lastname}</li>
+          <li><b>Email:</b> ${user.email}</li>
+          <li><b>Plan:</b> ${plan.name}</li>
+          <li><b>Amount:</b> ${amount} ${walletSymbol}</li>
+          <li><b>Expected Return:</b> ${expectedReturn} ${walletSymbol}</li>
+        </ul>
+        <p>Login to the admin panel for more details.</p>
+      `
+    )
 
     return res.status(201).json({
       success: true,
@@ -89,68 +131,6 @@ export const postUserInvestment = async (req, res) => {
     return res.status(500).json({ success: false, msg: 'Server error' })
   }
 }
-
-// export const getUserInvestments = async (req, res) => {
-//   try {
-//     const userId = req.params.userId
-
-//     let investments = await UserInvestment.find({ userId })
-//       .populate({
-//         path: 'planId',
-//         select: 'title category profitRate durationDays minDeposit maxDeposit'
-//       })
-//       .sort({ createdAt: -1 })
-
-//     // Check and update completed status
-//     const now = new Date()
-
-//     for (let investment of investments) {
-//       const startDate = new Date(investment.startDate)
-//       const endDate = new Date(startDate)
-//       endDate.setDate(startDate.getDate() + investment.durationDays)
-
-//       if (now >= endDate && investment.status !== 'completed') {
-//         investment.status = 'completed'
-//         await investment.save()
-
-//         // Credit the user's wallet used for investing
-//         const wallet = await UserWallet.findOne({
-//           userId: investment.userId,
-//           symbol: investment.walletSymbol,
-//           walletAddress: investment.walletAddress
-//         })
-
-//         if (wallet) {
-//           wallet.balance += investment.expectedReturn
-//           await wallet.save()
-
-//           // Record a transaction for the payout
-//           await Transaction.create({
-//             userId: investment.userId,
-//             amount: investment.expectedReturn,
-//             coin: investment.walletSymbol,
-//             type: 'Investment-Payout',
-//             status: 'success',
-//             method: 'Wallet',
-//             receipt: investment._id?.toString() || ''
-//           })
-//         }
-//       }
-//     }
-
-//     // Re-fetch to return updated statuses
-//     investments = await UserInvestment.find({ userId })
-//       .populate({
-//         path: 'planId',
-//         select: 'title category profitRate durationDays minDeposit maxDeposit'
-//       })
-//       .sort({ createdAt: -1 })
-
-//     res.status(200).json({ status: 'ok', data: investments })
-//   } catch (err) {
-//     res.status(500).json({ status: 'error', message: err.message })
-//   }
-// }
 
 export const getUserInvestments = async (req, res) => {
   try {
