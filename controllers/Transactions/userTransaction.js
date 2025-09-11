@@ -1,5 +1,4 @@
 import Transactions from '../../models/Transaction.js'
-import User from '../../models/UserModel.js'
 
 // Get all transactions with counts per user
 export const getTransactions = async (req, res) => {
