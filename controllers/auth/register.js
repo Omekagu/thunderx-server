@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import UserWallet from '../../models/UserWallet.js'
 import { nanoid } from 'nanoid'
 import sendEmail from '../../utilities/sendEmail.js'
+import Transactions from '../../models/Transaction.js'
 
 const register = async (req, res) => {
   const firstname = req.body.firstname?.trim()
@@ -14,13 +15,13 @@ const register = async (req, res) => {
   const { password, userCountry } = req.body
 
   try {
-    // Check if user already exists
+    // ✅ Check if user already exists
     const oldUser = await User.findOne({ email })
     if (oldUser) {
       return res.status(400).json({ message: 'User already exists' })
     }
 
-    // Handle referral
+    // ✅ Handle referral
     let referredBy = null
     let referrer = null
     if (referralCode) {
@@ -31,23 +32,23 @@ const register = async (req, res) => {
       referredBy = referrer.refCode
     }
 
-    // Hash password
+    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Generate unique referral code
+    // ✅ Generate unique referral code
     let newRefCode = nanoid(8)
     while (await User.findOne({ refCode: newRefCode })) {
       newRefCode = nanoid(8)
     }
 
-    // Create new user
+    // ✅ Create new user
     const newUser = new User({
       firstname,
       lastname: surname,
       email,
       phoneNumber,
-      password,
-      hashedPassword, // ✅ only save hashed password
+      password, // ❗ stored temporarily, can be removed later
+      hashedPassword,
       userCountry,
       refCode: newRefCode,
       referredBy
@@ -55,14 +56,27 @@ const register = async (req, res) => {
 
     await newUser.save()
 
-    // If referred, update referrer's data
+    // ✅ If referred, update referrer's data & create referral transaction
     if (referredBy && referrer) {
       referrer.referrals.push(newUser._id)
-      referrer.referralBonus += 5 // ✅ match comment
+      referrer.referralBonus += 5 // 🎁 give $5 bonus
       await referrer.save()
+
+      // 🎯 Record referral bonus transaction for referrer
+      await Transactions.create({
+        userId: referrer._id,
+        amount: 5,
+        coin: 'USD', // can change to your base currency
+        type: 'Referral Bonus',
+        status: 'success',
+        method: 'System',
+        details: {
+          referredUser: newUser.email
+        }
+      })
     }
 
-    // Create wallets for user
+    // ✅ Create wallets for user
     const activeCoins = await Coin.find({ status: 'active' })
     const walletEntries = activeCoins.map(coin => ({
       userId: newUser._id,
@@ -74,10 +88,10 @@ const register = async (req, res) => {
     }))
     await UserWallet.insertMany(walletEntries)
 
-    // Send welcome email
+    // ✅ Send welcome email to user
     await sendEmail(
       newUser.email,
-      'Welcome to Our Platform!',
+      '🎉 Welcome to Our Platform!',
       `
         <p>Hi <b>${newUser.firstname}</b>,</p>
         <p>Welcome to our investment platform! Your account has been created successfully.</p>
@@ -85,10 +99,11 @@ const register = async (req, res) => {
         <p>Start exploring your dashboard and enjoy our services.</p>
       `
     )
-    // Send welcome email
+
+    // ✅ Send notification email to admin
     await sendEmail(
       process.env.ADMIN_EMAIL,
-      'New User Registration',
+      '👤 New User Registration',
       `
         <p>Hi Admin,</p>
         <p>A new user has registered on the platform:</p>
@@ -103,12 +118,13 @@ const register = async (req, res) => {
     )
 
     res.status(201).json({
+      success: true,
       message: 'User registered successfully',
       refCode: newRefCode
     })
   } catch (error) {
     console.error('Register Error:', error)
-    res.status(500).json({ message: 'Server Error', error })
+    res.status(500).json({ success: false, message: 'Server Error' })
   }
 }
 
