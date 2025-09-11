@@ -1,5 +1,8 @@
 import express from 'express'
 import {
+  getAlltransactions,
+  getTransactions,
+  getUsersWithBalance,
   getUserTransaction,
   postUserTransaction
 } from '../../controllers/Transactions/userTransaction.js'
@@ -19,6 +22,9 @@ import {
 const router = express.Router()
 
 // USER TRANSACTION
+router.get('/', getAlltransactions)
+router.get('/transactions', getTransactions)
+router.get('/users', getUsersWithBalance)
 router.get('/:userId', getUserTransaction)
 router.post('/', postUserTransaction)
 
