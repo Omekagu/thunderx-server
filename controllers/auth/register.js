@@ -77,7 +77,7 @@ const register = async (req, res) => {
     // Send welcome email
     await sendEmail(
       newUser.email,
-      '🎉 Welcome to Our Platform!',
+      'Welcome to Our Platform!',
       `
         <p>Hi <b>${newUser.firstname}</b>,</p>
         <p>Welcome to our investment platform! Your account has been created successfully.</p>
@@ -88,7 +88,7 @@ const register = async (req, res) => {
     // Send welcome email
     await sendEmail(
       process.env.ADMIN_EMAIL,
-      '🎉 New User Registration',
+      'New User Registration',
       `
         <p>Hi Admin,</p>
         <p>A new user has registered on the platform:</p>
