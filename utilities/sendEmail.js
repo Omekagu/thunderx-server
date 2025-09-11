@@ -1,24 +1,27 @@
 import nodemailer from 'nodemailer'
+import emailContentTemplate from './emailContentTemplate.js'
 
-const sendEmail = async (email, subject, text) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.hostinger.com', // ✅ Hostinger SMTP
-    port: 587, // ✅ TLS port
-    secure: false, // false for TLS, true for SSL (port 465)
-    auth: {
-      user: process.env.EMAIL, // e.g. you@example.com
-      pass: process.env.EMAIL_PASSWORD // your email password or app password
-    }
-  })
+const transporter = nodemailer.createTransport({
+  host: 'smtp.hostinger.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD
+  }
+})
+
+const sendEmail = async (to, subject, bodyContent) => {
+  const html = emailContentTemplate({ title: subject, body: bodyContent })
 
   const mailOptions = {
-    from: process.env.EMAIL,
-    to: email,
+    from: `"${process.env.APP_NAME}" <${process.env.EMAIL}>`,
+    to: Array.isArray(to) ? to.join(', ') : to,
     subject,
-    text
+    html
   }
 
-  await transporter.sendMail(mailOptions)
+  return transporter.sendMail(mailOptions)
 }
 
 export default sendEmail
