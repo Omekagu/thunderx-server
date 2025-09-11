@@ -3,7 +3,7 @@ import Transactions from '../../models/Transaction.js'
 import UserWallet from '../../models/UserWallet.js'
 import { jwtSecret } from '../../utilities/jwtSecret.js'
 import sendEmail from '../../utilities/sendEmail.js'
-import UserInfo from '../../models/UserModel.js'
+import UserInfo from '../../models/userModel.js'
 
 // Create a new deposit
 export const createDeposit = async (req, res) => {

@@ -1,4 +1,4 @@
-import UserInfo from '../../models/UserModel.js'
+import UserInfo from '../../models/userModel.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import sendEmail from '../../utilities/sendEmail.js'
