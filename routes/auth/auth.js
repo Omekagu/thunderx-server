@@ -1,12 +1,12 @@
 import express from 'express'
 import register from '../../controllers/auth/register.js'
-import login from '../../controllers/auth/login.js'
 import {
   resetOtp,
   sendOtp,
   verifyOtp
 } from '../../controllers/auth/forgotPassword.js'
 import { updateUserProfile } from '../../controllers/auth/updateUserProfile.js'
+import { login } from '../../controllers/auth/login.js'
 
 const router = express.Router()
 

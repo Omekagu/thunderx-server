@@ -1,14 +1,17 @@
-import User from '../../models/userModel.js'
+import UserInfo from '../../models/UserModel.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { jwtSecret } from '../../utilities/jwtSecret.js'
+import sendEmail from '../../utilities/sendEmail.js'
+// import sendEmail from '../utils/sendEmail.js'
 
-const login = async (req, res) => {
+const jwtSecret = process.env.JWT_SECRET
+
+export const login = async (req, res) => {
   const { email, password } = req.body
   console.log(email, password)
 
   try {
-    const user = await User.findOne({ email })
+    const user = await UserInfo.findOne({ email })
 
     if (!user) {
       return res
@@ -25,10 +28,34 @@ const login = async (req, res) => {
     }
 
     // Generate JWT Token with userId + role
-    const token = jwt.sign(
-      { userId: user._id, role: user.role }, // 👈 include role
-      jwtSecret,
-      { expiresIn: '30m' }
+    const token = jwt.sign({ userId: user._id, role: user.role }, jwtSecret, {
+      expiresIn: '30m'
+    })
+
+    // Send login confirmation email to User
+    await sendEmail(
+      user.email,
+      'Login Successful',
+      `
+      <p>Hi <b>${user.firstname}</b>,</p>
+      <p>You have successfully logged in to your account.</p>
+      <p>If this wasn't you, please reset your password immediately.</p>
+      <li><b>Time:</b> ${new Date().toLocaleString()}</li>
+      `
+    )
+
+    // Notify Admin
+    await sendEmail(
+      process.env.ADMIN_EMAIL,
+      'User Login Alert',
+      `
+      <p>User <b>${user.firstname} ${user.lastname}</b> just logged in.</p>
+      <ul>
+        <li><b>Email:</b> ${user.email}</li>
+        <li><b>Role:</b> ${user.role}</li>
+        <li><b>Time:</b> ${new Date().toLocaleString()}</li>
+      </ul>
+      `
     )
 
     res.status(200).json({
@@ -36,7 +63,7 @@ const login = async (req, res) => {
       data: {
         token,
         userId: user._id,
-        role: user.role // 👈 send role back
+        role: user.role
       }
     })
   } catch (error) {
@@ -44,5 +71,3 @@ const login = async (req, res) => {
     res.status(500).json({ status: 'error', message: 'server error' })
   }
 }
-
-export default login
