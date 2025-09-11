@@ -69,7 +69,7 @@ const register = async (req, res) => {
         coin: 'USD', // can change to your base currency
         type: 'Referral Bonus',
         status: 'success',
-        method: 'System',
+        method: 'Referral',
         details: {
           referredUser: newUser.email
         }

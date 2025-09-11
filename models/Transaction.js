@@ -21,7 +21,7 @@ const TransactionSchema = new mongoose.Schema({
       'Loan',
       'Transfer',
       'Investment-Payout',
-      'Referral',
+      'Referral Bonus',
       'Investment'
     ],
     required: true
