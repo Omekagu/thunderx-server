@@ -7,6 +7,7 @@ import sendEmail from '../../utilities/sendEmail.js'
 import Transactions from '../../models/Transaction.js'
 
 const register = async (req, res) => {
+  console.log('Registering user:', req.body)
   const firstname = req.body.firstname?.trim()
   const surname = req.body.surname?.trim()
   const email = req.body.email?.trim().toLowerCase()
@@ -91,7 +92,7 @@ const register = async (req, res) => {
     // ✅ Send welcome email to user
     await sendEmail(
       newUser.email,
-      '🎉 Welcome to Our Platform!',
+      'Welcome to Our Platform!',
       `
         <p>Hi <b>${newUser.firstname}</b>,</p>
         <p>Welcome to our investment platform! Your account has been created successfully.</p>
@@ -103,7 +104,7 @@ const register = async (req, res) => {
     // ✅ Send notification email to admin
     await sendEmail(
       process.env.ADMIN_EMAIL,
-      '👤 New User Registration',
+      'New User Registration',
       `
         <p>Hi Admin,</p>
         <p>A new user has registered on the platform:</p>
